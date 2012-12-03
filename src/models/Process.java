@@ -1,3 +1,4 @@
+package models;
 public class Process {
 	int estimatedRuntime;
 	int priority;

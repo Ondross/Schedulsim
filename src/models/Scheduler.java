@@ -1,3 +1,4 @@
+package models;
 import java.util.Queue;
 
 public class Scheduler {
