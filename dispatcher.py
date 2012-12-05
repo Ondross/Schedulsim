@@ -5,3 +5,10 @@ class Dispatcher(object):
 		super(Dispatcher, self).__init__()
 		self.policy = policy
 		self.runQueue = []
+
+	def step(self):
+		"""Steps one unit of time."""
+		# Update queues
+		# Update resources used
+		pass
+		

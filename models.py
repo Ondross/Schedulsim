@@ -59,3 +59,6 @@ class FirstInFirstOut(Policy):
         super(FirstInFirstOut, self).__init__()
         self.arg = arg
 
+    def reorderQueue():
+        """Reoders a queue of processes based on the FIFO policy."""
+        pass
