@@ -3,22 +3,26 @@
 
 class Process(object):
     """Represents a process."""
-    def __init__(self, estimatedRuntime, priority, goal):
+    def __init__(self, estimatedRuntime, priority, goal, steps, name):
         self.estimatedRuntime = estimatedRuntime
         self.priority = priority
         self.goal = goal
+        self.steps_remaining = steps
+        self.name = name
+        self.execution_time = 0
         self.resourceInUse = None
 
-    def ressourceRequired(self, t):
-        """Determines what ressource would be needed for 
-        time t based on the ressource probabilities."""
+
+    def resourceRequired(self, t):
+        """Determines what resource would be needed for 
+        time t based on the resource probabilities."""
         pass
 
 # Resources
 class Resource(object):
-    """Abstract class representing a ressource."""
+    """Abstract class representing a resource."""
     def __init__(self, name):
-        super(Ressource, self).__init__()
+        super(Resource, self).__init__()
         self.name = name
         self.inUse = False
         self.waitQueue = None
@@ -36,10 +40,10 @@ class Disk(Resource):
     def __init__(self, name):
         super(Disk, self).__init__(name)
 
-class Network(object):
+class Network(Resource):
     """Represents the network resource."""
     def __init__(self, name):
-        super(Disk, self).__init__(name)
+        super(Network, self).__init__(name)
 
 
 # Scheduling polices
@@ -48,17 +52,26 @@ class Policy(object):
     def __init__(self):
         super(Policy, self).__init__()
 
-    def reorderQueue():
-        """Reoders a queue of processes depending on the 
+    def reorderQueue(self):
+        """Reorders a queue of processes depending on the 
         policy"""
         raise NotImplementedError("Should implement queue reordering on a policy level.")
 
 class FirstInFirstOut(Policy):
     """First in first out scheduling policy."""
-    def __init__(self, arg):
+    def __init__(self):
         super(FirstInFirstOut, self).__init__()
-        self.arg = arg
 
-    def reorderQueue():
-        """Reoders a queue of processes based on the FIFO policy."""
+    def reorderQueue(self):
+        """Reorders a queue of processes based on the FIFO policy."""
         pass
+
+    def shouldAdvance(self, queue, process_running):
+        """Checks if a processor should kick out a process and
+        advance the queue"""
+        if (process_running == None):
+            return True
+        if (process_running.execution_time > 5):
+            return True
+        else:
+            return False
