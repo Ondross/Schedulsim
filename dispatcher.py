@@ -12,38 +12,14 @@ class Dispatcher(object):
 		self.timerQueue = []
 		self.process_running = None
 
-	def step(self):
-		"""Steps one unit of time."""
-
-		#Add Processes
+	def processFromImput(self):
 		print("Insert a Process?")
 		if (raw_input() == "yes"):
 			print("What is it called?")
 			name = raw_input()
-			self.runQueue.insert(0, Process(1, 1, 1, -1, name))
-			print()
+			self.runQueue.insert(0, Process(1, 1, 1, 3, name))
 
-		# Update queues
-		self.policy.reorderQueue()
-		# Update resources used
-
-		#Run one step of code
-		if (self.process_running):
-			self.process_running.execution_time += 1
-			self.process_running.steps_remaining -= 1
-			if self.process_running.steps_remaining == 0:
-				if (len(self.runQueue) != 0):
-					self.process_running = self.runQueue.pop()
-
-		#Advance Queue?
-		if (self.policy.shouldAdvance(self.runQueue, self.process_running) == True):
-			if (self.process_running):
-				self.process_running.execution_time = 0
-				self.runQueue.insert(0, self.process_running)
-			if (len(self.runQueue) != 0):
-				self.process_running = self.runQueue.pop()
-
-		#Show Queues	
+	def printQueues(self):
 		print("Run Queue: ", end="")
 		for process in self.runQueue:
 			print(process.name, end=", ")
@@ -56,12 +32,39 @@ class Dispatcher(object):
 			print(self.process_running.name, end=" is running")
 		print("\n")
 
+	def step(self):
+		"""Steps one unit of time."""
+
+		#Add Processes
+		self.processFromImput()
+
+		# Update queues
+		self.policy.reorderQueue()
+
+		# Update resources used
+
+		# Run one step of code
+		if (self.process_running):
+			self.process_running.execution_time += 1
+			self.process_running.steps_remaining -= 1
+			if self.process_running.steps_remaining == 0:
+				# Process finished
+				if (len(self.runQueue) != 0):
+					self.process_running = self.runQueue.pop()
+				else: # No more processes to run
+					self.process_running = None
+
+		# Advance Queue?
+		if (self.policy.shouldAdvance(self.runQueue, self.process_running) == True):
+			if (self.process_running):
+				self.process_running.execution_time = 0
+				self.runQueue.insert(0, self.process_running)
+			if (len(self.runQueue) != 0):
+				self.process_running = self.runQueue.pop()
+
+		self.printQueues()
+
 main = Dispatcher(FirstInFirstOut())   #change to enum
 
 while (True):
 	main.step()
-
-
-
-
-

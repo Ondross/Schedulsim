@@ -68,10 +68,9 @@ class FirstInFirstOut(Policy):
 
     def shouldAdvance(self, queue, process_running):
         """Checks if a processor should kick out a process and
-        advance the queue"""
+        advance the queue."""
         if (process_running == None):
             return True
         if (process_running.execution_time > 5):
             return True
-        else:
-            return False
+        return False
