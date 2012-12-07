@@ -57,10 +57,12 @@ class Policy(object):
         policy"""
         raise NotImplementedError("Should implement queue reordering on a policy level.")
 
-class FirstInFirstOut(Policy):
-    """First in first out scheduling policy."""
-    def __init__(self):
-        super(FirstInFirstOut, self).__init__()
+class RoundRobin(Policy):
+    """Round robin scheduling policy."""
+
+    def __init__(self, quantum = 1):
+        super(RoundRobin, self).__init__()
+        self.quantum = quantum
 
     def reorderQueue(self):
         """Reorders a queue of processes based on the FIFO policy."""
@@ -71,6 +73,6 @@ class FirstInFirstOut(Policy):
         advance the queue."""
         if (process_running == None):
             return True
-        if (process_running.execution_time > 5):
+        if (process_running.execution_time >= self.quantum):
             return True
         return False

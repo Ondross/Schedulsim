@@ -17,7 +17,7 @@ class Dispatcher(object):
 		if (raw_input() == "yes"):
 			print("What is it called?")
 			name = raw_input()
-			self.runQueue.insert(0, Process(1, 1, 1, 3, name))
+			self.runQueue.insert(0, Process(1, 1, 1, 5, name))
 
 	def printQueues(self):
 		print("Run Queue: ", end="")
@@ -64,7 +64,7 @@ class Dispatcher(object):
 
 		self.printQueues()
 
-main = Dispatcher(FirstInFirstOut())   #change to enum
+main = Dispatcher(RoundRobin(1))
 
 while (True):
 	main.step()
