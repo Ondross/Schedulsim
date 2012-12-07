@@ -64,7 +64,7 @@ class Dispatcher(object):
 
 		self.printQueues()
 
-main = Dispatcher(RoundRobin(1))
+main = Dispatcher(FirstInFirstOut())
 
 while (True):
 	main.step()
