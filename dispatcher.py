@@ -13,24 +13,27 @@ class Dispatcher(object):
 		self.process_running = None
 
 	def processFromImput(self):
-		print("Insert a Process?")
-		if (raw_input() == "yes"):
-			print("What is it called?")
+		print("Press ENTER to step or type 'add' to add a process.")
+		if (raw_input() == "add"):
+			print("Name?")
 			name = raw_input()
-			self.runQueue.insert(0, Process(1, 1, 1, 5, name))
+			print("Length?")
+			length = int(raw_input())
+			self.runQueue.insert(0, Process(1, 1, length, name))
 
 	def printQueues(self):
-		print("Run Queue: ", end="")
+		print("    RUN: ", end="")
 		for process in self.runQueue:
 			print(process.name, end=", ")
 		print()
-		print("Wait Queue: ", end=", ")
+		print("   WAIT: ", end="")
 		for process in self.timerQueue:
 			print(process.name, end=", ")
 		print()
+		print("RUNNING: ", end="")
 		if (self.process_running):
-			print(self.process_running.name, end=" is running")
-		print("\n")
+			print(self.process_running.name)
+		print()
 
 	def step(self):
 		"""Steps one unit of time."""
@@ -39,7 +42,7 @@ class Dispatcher(object):
 		self.processFromImput()
 
 		# Update queues
-		self.policy.reorderQueue()
+		self.policy.reorderQueue(self.runQueue, self.process_running)
 
 		# Update resources used
 
@@ -55,7 +58,7 @@ class Dispatcher(object):
 					self.process_running = None
 
 		# Advance Queue?
-		if (self.policy.shouldAdvance(self.runQueue, self.process_running) == True):
+		if (self.policy.shouldAdvance(self.runQueue, self.process_running)):
 			if (self.process_running):
 				self.process_running.execution_time = 0
 				self.runQueue.insert(0, self.process_running)
@@ -64,7 +67,7 @@ class Dispatcher(object):
 
 		self.printQueues()
 
-main = Dispatcher(FirstInFirstOut())
+main = Dispatcher(ShortestRemainingTime())
 
 while (True):
 	main.step()
