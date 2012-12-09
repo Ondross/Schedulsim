@@ -101,13 +101,13 @@ class ShortestRemainingTime(Policy):
         """Reorders a queue of processes based on which processes have the least
         time remaining."""
         # We have to add the current process back in the queue
-        if (process_running != None):
-            runQueue.append(process_running)
+        #if (process_running != None):
+         #   runQueue.append(process_running)  This is done in dispatcher.step()
 
-        runQueue.sort(key = operator.attrgetter('steps_remaining'))
+        runQueue.sort(key = operator.attrgetter('steps_remaining'), reverse = True)
 
-        if (len(runQueue) != 0):
-            process_running = runQueue.pop()
+        #if (len(runQueue) != 0):
+         #   process_running = runQueue.pop()     This is done in dispatcher.step()
 
     def shouldAdvance(self, queue, process_running):
         return True
