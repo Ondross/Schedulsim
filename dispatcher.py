@@ -1,4 +1,5 @@
 from __future__ import print_function
+import random
 
 from models import *
 
@@ -10,6 +11,7 @@ class Dispatcher(object):
 		self.policy = policy
 		self.runQueue = []
 		self.timerQueue = []
+		self.diskQueue = []
 		self.process_running = None
 
 	def processFromInput(self):
@@ -27,7 +29,7 @@ class Dispatcher(object):
 			print(process.name, "(", process.steps_remaining, ")", sep="", end=", ")
 		print()
 		print("   WAIT: ", end="")
-		for process in self.timerQueue:
+		for process in self.diskQueue:
 			print(process.name, "(", process.steps_remaining, ")", sep="", end=", ")
 		print()
 		print("RUNNING: ", end="")
@@ -63,6 +65,15 @@ class Dispatcher(object):
 
 		# Run one step of code
 		if (self.process_running):
+
+			if (random.random() < self.process_running.disk_probability): #maybe we "randomly" need disk
+				self.diskQueue.insert(0, self.process_running)
+				self.diskQueue[0].disk_time_remaining = random.randint(1, 10) #It has to wait on some "random" stuff
+				#sorted as FIFO
+				if len(self.runQueue) > 0:
+					self.process_running = self.runQueue.pop()
+					self.resourceInUse = True
+
 			self.process_running.execution_time += 1
 			self.process_running.steps_remaining -= 1
 			if self.process_running.steps_remaining == 0:
@@ -71,6 +82,11 @@ class Dispatcher(object):
 					self.process_running = self.runQueue.pop()
 				else: # No more processes to run
 					self.process_running = None
+
+		#Deal with Disk Queue
+		if self.diskQueue[-1].disk_time_remaining == 0:
+			runQueue.append(self.diskQueue.pop())
+		self.diskQueue[-1].disk_time_remaining -= 1
 
 main = Dispatcher(ShortestRemainingTime())
 

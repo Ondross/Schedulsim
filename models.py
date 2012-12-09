@@ -5,12 +5,17 @@ import operator
 class Process(object):
     """Represents a process."""
     def __init__(self, priority, goal, steps_remaining, name):
+        self.base_priority = priority
         self.priority = priority
         self.goal = goal
         self.steps_remaining = steps_remaining
         self.name = name
         self.execution_time = 0
         self.resourceInUse = None
+        self.wait_time = 0
+
+        #Behavior
+        self.disk_probability = .20
 
 
     def resourceRequired(self, t):
@@ -63,7 +68,7 @@ class Policy(object):
         running finishes."""
         if (process_running == None):
             return True
-        if (process_running.steps_remaining == 0):
+        if (process_running.steps_remaining == 0):   #Isn't this case handled in dispatcher.step?
             return True
         return False
 
@@ -111,3 +116,15 @@ class ShortestRemainingTime(Policy):
 
     def shouldAdvance(self, queue, process_running):
         return True
+
+class DecayUsage(Policy):
+    """Decay Usage scheduling policy."""
+
+    def __init__(self):
+        super(DecayUsage, self).__init__()
+
+    def setPriority():
+        pass
+
+    def reorderQueue(self, runQueue):
+        runQueue.sort(key = operator.attrgetter('priority'), reverse = True)
