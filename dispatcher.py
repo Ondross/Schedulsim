@@ -30,7 +30,7 @@ class Dispatcher(object):
 		print()
 		print("   WAIT: ", end="")
 		for process in self.diskQueue:
-			print(process.name, "(", process.steps_remaining, ")", sep="", end=", ")
+			print(process.name, "(", process.steps_remaining, ")(", process.disk_time_remaining, ")", sep="", end=", ")
 		print()
 		print("RUNNING: ", end="")
 		if (self.process_running):
@@ -63,9 +63,7 @@ class Dispatcher(object):
 
 		self.printQueues()
 
-		# Run one step of code
-		if (self.process_running):
-
+		if self.process_running:
 			if (random.random() < self.process_running.disk_probability): #maybe we "randomly" need disk
 				self.diskQueue.insert(0, self.process_running)
 				self.diskQueue[0].disk_time_remaining = random.randint(1, 10) #It has to wait on some "random" stuff
@@ -73,6 +71,11 @@ class Dispatcher(object):
 				if len(self.runQueue) > 0:
 					self.process_running = self.runQueue.pop()
 					self.resourceInUse = True
+				else:
+					self.process_running = None
+
+		# Run one step of code
+		if (self.process_running):
 
 			self.process_running.execution_time += 1
 			self.process_running.steps_remaining -= 1
@@ -84,9 +87,11 @@ class Dispatcher(object):
 					self.process_running = None
 
 		#Deal with Disk Queue
-		if self.diskQueue[-1].disk_time_remaining == 0:
-			runQueue.append(self.diskQueue.pop())
-		self.diskQueue[-1].disk_time_remaining -= 1
+		if len(self.diskQueue) > 0:
+			if self.diskQueue[-1].disk_time_remaining == 0:
+				self.runQueue.append(self.diskQueue.pop())
+		if len(self.diskQueue) > 0:
+			self.diskQueue[-1].disk_time_remaining -= 1
 
 main = Dispatcher(ShortestRemainingTime())
 
