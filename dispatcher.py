@@ -12,7 +12,8 @@ class Dispatcher(object):
 		self.runQueue = []
 		self.timerQueue = []
 		self.diskQueue = []
-		self.process_running = None
+		self.processes_running = []
+		self.processors = 1
 
 	def processFromInput(self):
 		print("Press ENTER to step or type 'add' to add a process.")
@@ -33,8 +34,8 @@ class Dispatcher(object):
 			print(process.name, "(", process.steps_remaining, ")(", process.disk_time_remaining, ")", sep="", end=", ")
 		print()
 		print("RUNNING: ", end="")
-		if (self.process_running):
-			print(self.process_running.name, "(", self.process_running.steps_remaining, ")", sep="",)
+		for process_running in self.processes_running:
+			rint(self.process_running.name, "(", self.process_running.steps_remaining, ")", sep="",)
 		print()
 
 	def step(self):
@@ -46,45 +47,48 @@ class Dispatcher(object):
 		# Update resources used
 
 		# Advance Queue?
-		if (self.policy.shouldAdvance(self.runQueue, self.process_running)):
-			if (self.process_running):
-				self.process_running.execution_time = 0
-				self.runQueue.insert(0, self.process_running)
-				self.process_running = None
+		for i in xrange(0, self.processors-1):
+			if self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors):
+				if i <= self.processes_running:
+					self.processes_running[i].execution_time = 0
+					self.runQueue.insert(0, self.processes_running[i])
+					self.processes_running.pop(i)
 
-		self.policy.reorderQueue(self.runQueue, self.process_running)
+		self.policy.reorderQueue(self.runQueue, self.processes_running)
 
-		if (self.policy.shouldAdvance(self.runQueue, self.process_running)):
-			if (len(self.runQueue) != 0):
-				self.process_running = self.runQueue.pop()
+		for i in xrange(0, self.processors - 1):
+			if (self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors)):
+				if (len(self.runQueue) != 0):
+					self.process_running = self.runQueue.pop()
 
 		# Update queues
-		self.policy.reorderQueue(self.runQueue, self.process_running)
+		self.policy.reorderQueue(self.runQueue, self.processes_running)
 
 		self.printQueues()
 
-		if self.process_running:
-			if (random.random() < self.process_running.disk_probability): #maybe we "randomly" need disk
-				self.diskQueue.insert(0, self.process_running)
-				self.diskQueue[0].disk_time_remaining = random.randint(1, 10) #It has to wait on some "random" stuff
-				#sorted as FIFO
-				if len(self.runQueue) > 0:
-					self.process_running = self.runQueue.pop()
-					self.resourceInUse = True
-				else:
-					self.process_running = None
+		for i in xrange(0, self.processors-1):
+			if self.processes_running[i]:
+				if (random.random() < self.processes_running[i].disk_probability): #maybe we "randomly" need disk
+					self.diskQueue.insert(0, self.processes_running[i])
+					self.diskQueue[0].disk_time_remaining = random.randint(1, 10) #It has to wait on some "random" stuff
+					#sorted as FIFO
+					if len(self.runQueue) > 0:
+						self.processes_running[i] = self.runQueue.pop()
+						self.resourceInUse = True
+					else:
+						self.processes_running[i] = None
 
 		# Run one step of code
-		if (self.process_running):
-
-			self.process_running.execution_time += 1
-			self.process_running.steps_remaining -= 1
-			if self.process_running.steps_remaining == 0:
-				# Process finished
-				if (len(self.runQueue) != 0):
-					self.process_running = self.runQueue.pop()
-				else: # No more processes to run
-					self.process_running = None
+		for i in xrange(0, self.processors-1):
+			if (self.processes_running[i]):
+				self.processes_running[i].execution_time += 1
+				self.processes_running[i].steps_remaining -= 1
+				if self.processes_running[i].steps_remaining == 0:
+					# Process finished
+					if (len(self.runQueue) != 0):
+						self.processes_running[i] = self.runQueue.pop()
+					else: # No more processes to run
+						self.processes_running[i] = None
 
 		#Deal with Disk Queue
 		if len(self.diskQueue) > 0:
@@ -93,7 +97,7 @@ class Dispatcher(object):
 		if len(self.diskQueue) > 0:
 			self.diskQueue[-1].disk_time_remaining -= 1
 
-main = Dispatcher(ShortestRemainingTime())
+main = Dispatcher(FirstInFirstOut())
 
 while (True):
 	main.step()
