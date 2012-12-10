@@ -15,7 +15,10 @@ class Process(object):
         self.wait_time = 0
 
         #Behavior
-        self.disk_probability = .20
+        self.disk_probability = .10
+
+        #metrics used by some policies
+        self.usage = 0.0
 
 
     def resourceRequired(self, t):
@@ -72,6 +75,9 @@ class Policy(object):
             return True
         return False
 
+    def get_information(dispatcher):
+        pass
+
 class FirstInFirstOut(Policy):
     """First In First Out scheduling policy."""
 
@@ -80,6 +86,9 @@ class FirstInFirstOut(Policy):
 
     def reorderQueue(self, queue, running):
         """Reorders a queue of processes based on the FIFO policy."""
+        pass
+
+    def get_information(dispatcher):
         pass
 
 class RoundRobin(Policy):
@@ -95,6 +104,9 @@ class RoundRobin(Policy):
         if (process_running.execution_time >= self.quantum):
             return True
         return False
+
+    def get_information(dispatcher):
+        pass
 
 class ShortestRemainingTime(Policy):
     """Shortest Remaining Time scheduling policy."""
@@ -117,14 +129,43 @@ class ShortestRemainingTime(Policy):
     def shouldAdvance(self, queue, process_running):
         return True
 
+    def get_information(dispatcher):
+        pass
+
 class DecayUsage(Policy):
     """Decay Usage scheduling policy."""
 
-    def __init__(self):
+    def __init__(self, quantum = 3):
         super(DecayUsage, self).__init__()
+        self.quantum = quantum
 
-    def setPriority():
-        pass
+    def setPriority(self, runQueue, process_running):
+        for process in runQueue:
+            process.priority = process.base_priority - process.usage
+        if process_running:
+            process_running.priority = process_running.base_priority - process_running.usage
 
-    def reorderQueue(self, runQueue):
-        runQueue.sort(key = operator.attrgetter('priority'), reverse = True)
+    def shouldAdvance(self, queue, process_running):
+        if process_running == None:
+            return True
+        if len(queue) > 0:
+            if process_running.execution_time > self.quantum:
+                return True
+            else:
+                return False
+
+    def reorderQueue(self, runQueue, process_running):
+        runQueue.sort(key = operator.attrgetter('priority'))
+
+    def calculate_usage(self, process_running, waitQueues):
+        if process_running != None:
+            if process_running.usage < process_running.base_priority:
+                process_running.usage += 1
+            for queue in waitQueues:
+                for process in queue:
+                    process.usage *= 5/8
+
+
+    def get_information(self, dispatcher):
+        self.calculate_usage(dispatcher.process_running, dispatcher.waitQueues)
+        self.setPriority(dispatcher.runQueue, dispatcher.process_running)
