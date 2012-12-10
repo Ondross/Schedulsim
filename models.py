@@ -90,7 +90,7 @@ class RoundRobin(Policy):
     def shouldAdvance(self, queue, processes_running, processors):
         if len(processes_running) < processors:
             return True
-        for i in xrange(0,processors - 1):
+        for i in range(0,processors):
             if (processes_running[i].execution_time >= self.quantum):
                 return True
         return False

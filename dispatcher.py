@@ -35,7 +35,7 @@ class Dispatcher(object):
 		print()
 		print("RUNNING: ", end="")
 		for process_running in self.processes_running:
-			rint(self.process_running.name, "(", self.process_running.steps_remaining, ")", sep="",)
+			print(process_running.name, "(", process_running.steps_remaining, ")", sep="",)
 		print()
 
 	def step(self):
@@ -47,48 +47,47 @@ class Dispatcher(object):
 		# Update resources used
 
 		# Advance Queue?
-		for i in xrange(0, self.processors-1):
+		for i in range(0, self.processors):
 			if self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors):
-				if i <= self.processes_running:
+				if i < len(self.processes_running):
 					self.processes_running[i].execution_time = 0
-					self.runQueue.insert(0, self.processes_running[i])
-					self.processes_running.pop(i)
+					self.runQueue.append(self.processes_running[i])
+					self.processes_running.pop(self.processes_running.index(self.processes_running[i]))
 
 		self.policy.reorderQueue(self.runQueue, self.processes_running)
 
-		for i in xrange(0, self.processors - 1):
+		for i in range(0, self.processors):
 			if (self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors)):
 				if (len(self.runQueue) != 0):
-					self.process_running = self.runQueue.pop()
+					self.processes_running.insert(i, self.runQueue.pop())
 
 		# Update queues
 		self.policy.reorderQueue(self.runQueue, self.processes_running)
 
 		self.printQueues()
 
-		for i in xrange(0, self.processors-1):
-			if self.processes_running[i]:
+		for i in range(0, self.processors):
+			if i < len(self.processes_running) and self.processes_running[i]:
 				if (random.random() < self.processes_running[i].disk_probability): #maybe we "randomly" need disk
 					self.diskQueue.insert(0, self.processes_running[i])
 					self.diskQueue[0].disk_time_remaining = random.randint(1, 10) #It has to wait on some "random" stuff
 					#sorted as FIFO
 					if len(self.runQueue) > 0:
-						self.processes_running[i] = self.runQueue.pop()
-						self.resourceInUse = True
+						self.processes_running.insert(0, self.runQueue.pop())
 					else:
-						self.processes_running[i] = None
+						self.processes_running.pop(i)
 
 		# Run one step of code
-		for i in xrange(0, self.processors-1):
-			if (self.processes_running[i]):
+		for i in range(0, self.processors):
+			if i < len(self.processes_running):
 				self.processes_running[i].execution_time += 1
 				self.processes_running[i].steps_remaining -= 1
 				if self.processes_running[i].steps_remaining == 0:
 					# Process finished
 					if (len(self.runQueue) != 0):
-						self.processes_running[i] = self.runQueue.pop()
+						self.processes_running.insert(0, self.runQueue.pop())
 					else: # No more processes to run
-						self.processes_running[i] = None
+						self.processes_running.pop(i)
 
 		#Deal with Disk Queue
 		if len(self.diskQueue) > 0:
