@@ -14,6 +14,7 @@ class Dispatcher(object):
 		self.diskQueue = []
 		self.processes_running = []
 		self.processors = 1
+		self.waitQueues = [self.timerQueue, self.diskQueue]
 
 	def processFromInput(self):
 		print("Press ENTER to step or type 'add' to add a process.")
@@ -22,12 +23,12 @@ class Dispatcher(object):
 			name = raw_input()
 			print("Length?")
 			length = int(raw_input())
-			self.runQueue.insert(0, Process(1, 1, length, name))
+			self.runQueue.insert(0, Process(10.0, 1, length, name))
 
 	def printQueues(self):
 		print("    RUN: ", end="")
 		for process in self.runQueue:
-			print(process.name, "(", process.steps_remaining, ")", sep="", end=", ")
+			print(process.name, "(", process.steps_remaining, ")(", process.priority, ") ", sep="", end=", ")
 		print()
 		print("   WAIT: ", end="")
 		for process in self.diskQueue:
@@ -35,8 +36,11 @@ class Dispatcher(object):
 		print()
 		print("RUNNING: ", end="")
 		for process_running in self.processes_running:
-			print(process_running.name, "(", process_running.steps_remaining, ")", sep="",)
+			print(process_running.name, "(", process_running.steps_remaining, ")(", process_running.priority, ") ", sep="",)
 		print()
+
+	def runCode(self):
+		pass
 
 	def step(self):
 		"""Steps one unit of time."""
@@ -88,6 +92,10 @@ class Dispatcher(object):
 						self.processes_running.insert(0, self.runQueue.pop())
 					else: # No more processes to run
 						self.processes_running.pop(i)
+
+		self.runCode()
+
+		self.policy.get_information(self)
 
 		#Deal with Disk Queue
 		if len(self.diskQueue) > 0:
