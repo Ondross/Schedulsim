@@ -38,6 +38,9 @@ class Dispatcher(object):
 			print(self.process_running.name, "(", self.process_running.steps_remaining, ")(", self.process_running.priority, ") ", sep="",)
 		print()
 
+	def runCode(self):
+
+
 	def step(self):
 		"""Steps one unit of time."""
 
@@ -85,6 +88,8 @@ class Dispatcher(object):
 					self.process_running = self.runQueue.pop()
 				else: # No more processes to run
 					self.process_running = None
+
+		self.runCode()
 
 		self.policy.get_information(self)
 
