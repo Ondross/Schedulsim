@@ -60,22 +60,20 @@ class Policy(object):
     def __init__(self):
         super(Policy, self).__init__()
 
-    def reorderQueue(self, running, process_running):
+    def reorderQueue(self, running, processes_running):
         """Reorders a queue of processes depending on the policy. Default
         implementation doesn't order the queue."""
         pass
 
-    def shouldAdvance(self, queue, process_running):
+    def shouldAdvance(self, queue, processes_running, processors):
         """Checks if a processor should kick out a process and
         advance the queue. Default implementation only advances when the process
         running finishes."""
-        if (process_running == None):
-            return True
-        if (process_running.steps_remaining == 0):   #Isn't this case handled in dispatcher.step?
+        if len(processes_running) < processors:
             return True
         return False
 
-    def get_information(dispatcher):
+    def get_information(self, dispatcher):
         pass
 
 class FirstInFirstOut(Policy):
@@ -84,11 +82,11 @@ class FirstInFirstOut(Policy):
     def __init__(self):
         super(FirstInFirstOut, self).__init__()
 
-    def reorderQueue(self, queue, running):
+    def reorderQueue(self, queue, processes_running):
         """Reorders a queue of processes based on the FIFO policy."""
         pass
 
-    def get_information(dispatcher):
+    def get_information(self, dispatcher):
         pass
 
 class RoundRobin(Policy):
@@ -98,14 +96,15 @@ class RoundRobin(Policy):
         super(RoundRobin, self).__init__()
         self.quantum = quantum
 
-    def shouldAdvance(self, queue, process_running):
-        if (process_running == None):
+    def shouldAdvance(self, queue, processes_running, processors):
+        if len(processes_running) < processors:
             return True
-        if (process_running.execution_time >= self.quantum):
-            return True
+        for i in range(0,processors):
+            if (processes_running[i].execution_time >= self.quantum):
+                return True
         return False
 
-    def get_information(dispatcher):
+    def get_information(self, dispatcher):
         pass
 
 class ShortestRemainingTime(Policy):
@@ -114,7 +113,7 @@ class ShortestRemainingTime(Policy):
     def __init__(self):
         super(ShortestRemainingTime, self).__init__()
 
-    def reorderQueue(self, runQueue, process_running):
+    def reorderQueue(self, runQueue, processes_running):
         """Reorders a queue of processes based on which processes have the least
         time remaining."""
         # We have to add the current process back in the queue
@@ -126,7 +125,7 @@ class ShortestRemainingTime(Policy):
         #if (len(runQueue) != 0):
          #   process_running = runQueue.pop()     This is done in dispatcher.step()
 
-    def shouldAdvance(self, queue, process_running):
+    def shouldAdvance(self, queue, processes_running):
         return True
 
     def get_information(dispatcher):
