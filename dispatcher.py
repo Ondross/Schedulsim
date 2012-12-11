@@ -13,7 +13,7 @@ class Dispatcher(object):
 		self.timerQueue = []
 		self.diskQueue = []
 		self.processes_running = []
-		self.processors = 1
+		self.processors = 2
 		self.waitQueues = [self.timerQueue, self.diskQueue]
 
 	def processFromInput(self):
@@ -36,7 +36,7 @@ class Dispatcher(object):
 		print()
 		print("RUNNING: ", end="")
 		for process_running in self.processes_running:
-			print(process_running.name, "(", process_running.steps_remaining, ")(", process_running.priority, ") ", sep="",)
+			print(process_running.name, "(", process_running.steps_remaining, ")(", process_running.priority, ") ", sep="", end=", ")
 		print()
 
 	def runCode(self):
@@ -70,28 +70,27 @@ class Dispatcher(object):
 
 		self.printQueues()
 
-		for i in range(0, self.processors):
-			if i < len(self.processes_running) and self.processes_running[i]:
-				if (random.random() < self.processes_running[i].disk_probability): #maybe we "randomly" need disk
-					self.diskQueue.insert(0, self.processes_running[i])
-					self.diskQueue[0].disk_time_remaining = random.randint(1, 10) #It has to wait on some "random" stuff
-					#sorted as FIFO
-					if len(self.runQueue) > 0:
-						self.processes_running.insert(0, self.runQueue.pop())
-					else:
-						self.processes_running.pop(i)
+		# Determine if the process has to wait
+		for process_running in self.processes_running:
+			if (random.random() < process_running.disk_probability): #maybe we "randomly" need disk
+				process_running.disk_time_remaining = random.randint(1, 10)
+				self.diskQueue.insert(0, process_running)
+				if len(self.runQueue) > 0 and len(self.processes_running) < self.processors:
+					self.processes_running.insert(0, self.runQueue.pop())
+				else:
+					self.processes_running.remove(process_running)
 
+			
 		# Run one step of code
-		for i in range(0, self.processors):
-			if i < len(self.processes_running):
-				self.processes_running[i].execution_time += 1
-				self.processes_running[i].steps_remaining -= 1
-				if self.processes_running[i].steps_remaining == 0:
-					# Process finished
-					if (len(self.runQueue) != 0):
-						self.processes_running.insert(0, self.runQueue.pop())
-					else: # No more processes to run
-						self.processes_running.pop(i)
+		for process_running in self.processes_running:
+			process_running.execution_time += 1
+			process_running.steps_remaining -= 1
+			if process_running.steps_remaining == 0:
+				# Process finished
+				self.processes_running.remove(process_running)
+				if (len(self.runQueue) != 0 and len(self.processes_running) < self.processors):
+					self.processes_running.insert(0, self.runQueue.pop())
+				
 
 		self.runCode()
 
