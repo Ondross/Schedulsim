@@ -63,7 +63,7 @@ class Dispatcher(object):
 		"""Steps one unit of time."""
 
 		#Add Processes
-		self.processFromInput()
+		#self.processFromInput()
 
 		# Advance Queue?
 		self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors)
@@ -71,7 +71,7 @@ class Dispatcher(object):
 		# Update queues
 		self.policy.reorderQueue(self.runQueue, self.processes_running)
 
-		self.printQueues()
+		#self.printQueues()
 
 		toRemove = []
 		# Determine if a process has to wait
@@ -106,8 +106,5 @@ class Dispatcher(object):
 		if len(self.diskQueue) > 0:
 			self.diskQueue[-1].disk_time_remaining -= 1
 
-
 main = Dispatcher(ProportionalDecayUsage())#WeightedRoundRobin())#FirstInFirstOut())
 
-while (main.running == True):
-	main.step()

@@ -46,7 +46,6 @@ class Process(object):
         self.disk_time_remaining = random.randint(1, 5)
         diskQueue.insert(0, self)
 
-
     def resourceRequired(self, t):
         """Determines what resource would be needed for time t based on the 
         resource probabilities."""
