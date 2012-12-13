@@ -15,7 +15,7 @@ class Policy(object):
         """Checks if a processor should kick out a process and
         advance the queue. Default implementation only advances when the process
         running finishes."""
-        while len(processes_running) < processors:    #if there is something to advance
+        for i in range(len(processes_running)):    #if there is something to advance
             queue.insert(0, processes_running[i])
             queue[0].execution_time = 0
             processes_running[i] = queue.pop()
