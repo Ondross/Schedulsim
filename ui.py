@@ -12,6 +12,7 @@ class Controller:
         self.diskQueueViews = []
         self.imputQueueViews = []
         self.processorViews = []
+        self.policySettingControls = []
 
         root.resizable(width=False, height=False)
         root.title('Schedulsim')
@@ -24,7 +25,7 @@ class Controller:
         # Scheduling Policy
         self.policyString = StringVar(self.view)
         self.policyString.set("First In First Out") # initial value
-        option = OptionMenu(self.view, self.policyString, "First In First Out", "Shortest Job First", "Round Robin", "Decay Usage", "Proportional Share", command=self.policyChanged)
+        option = OptionMenu(self.view, self.policyString, "First In First Out", "Shortest Job First", "Round Robin", "Decay Usage", "Weigthed Round Robin", "Proportional Decay Usage", command=self.policyChanged)
         option.place(x=10, y=35)
 
         # Add process
@@ -55,7 +56,11 @@ class Controller:
         self.view.create_text(82, 260, text='DISK WAITING QUEUE')
         self.view.create_text(330, 260, text='USER INPUT WAITING QUEUE')
         self.view.create_text(500, 260, text='RUN QUEUE')
-        self.view.create_rectangle(210, 565, 15, 277, fill="white")
+
+        self.redrawQueueBg()
+
+    def redrawQueueBg(self):
+        self.view.create_rectangle(212, 565, 7, 277, fill="white")
         self.view.create_rectangle(435, 565, 240, 277, fill="white")
         self.view.create_rectangle(672, 565, 467, 277, fill="white")
 
@@ -66,9 +71,7 @@ class Controller:
         self.prepareRunQueueViews()
         self.prepareDiskQueueViews()
 
-        self.view.create_rectangle(210, 565, 15, 277, fill="white")
-        self.view.create_rectangle(435, 565, 240, 277, fill="white")
-        self.view.create_rectangle(672, 565, 467, 277, fill="white")
+        self.redrawQueueBg()
 
         self.drawQueues()
 
@@ -91,12 +94,11 @@ class Controller:
     def drawProcessorViews(self):
         for i in range(0, len(self.processorViews)):
             view = self.processorViews[i]
-            view.place(x=236 + (i*230), y=137)
+            view.place(x=236 + (i*231), y=137)
 
     def prepareRunQueueViews(self):
         # Delete views from screen
         for view in self.runQueueViews:
-            print view
             view.place_forget()
             view.delete()
         del self.runQueueViews[:]
@@ -119,9 +121,28 @@ class Controller:
             self.diskQueueViews.append(processView)
 
     def policyChanged(self, event):
-        print "Policy selected is: ", self.policyString.get()
-        # TODO: change policy
-        # TODO: Setup additional settings
+        for view in self.policySettingControls:
+            view.place_forget()
+        del self.policySettingControls[:]
+
+        policy = self.policyString.get()
+        print policy
+        #"Decay Usage", "Weigthed Round Robin", "Proportional Decay Usage"
+        if policy == "First In First Out":
+            self.dispatcher.policy = FirstInFirstOut()
+            return
+
+        if policy == "Round Robin":
+            # Setup controls
+            label = Label(self.view, text="Quantum")
+            label.place(x = 200, y = 38)
+            self.policySettingControls.append(label)
+
+            textBox = Entry(self.view, textvariable=quantum, width=3)
+            textBox.place(x = 270, y = 36)
+            textBox.bind('<Return>', self.policyChanged)
+            self.dispatcher.policy = RoundRobin(int(quantum.get()))
+            return
     
     def addProcess(self):
         print "Process to add is: ", self.processToAddString.get()
@@ -204,6 +225,8 @@ if __name__ == '__main__':
     bg1 = PhotoImage(file="waitingProcessQueue.gif")
     runningProcessBg = PhotoImage(file="runningProcess.gif")
     bg = PhotoImage(file="windowbg.gif")
+    quantum = StringVar()
+    quantum.set("10")
     w = bg.width()
     h = bg.height()
     app = Controller(root)
