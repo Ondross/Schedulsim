@@ -10,11 +10,24 @@ class Dispatcher(object):
 		super(Dispatcher, self).__init__()
 		self.policy = policy
 		self.runQueue = []
-		self.timerQueue = []
+		self.idleQueue = []
 		self.diskQueue = []
 		self.processes_running = []
 		self.processors = 2
-		self.waitQueues = [self.timerQueue, self.diskQueue]
+		self.waitQueues = [self.idleQueue, self.diskQueue]
+		self.finishedProcesses = []
+		self.rounds = 0
+		self.pid = 0
+
+		self.running = True
+
+	def activateMultitasking(self):
+		self.processors = 2
+
+	def deactivateMultitasking(self):
+		self.processors = 1
+		if len(self.processes_running) > 1:
+			self.runQueue.insert(0, self.processes_running.pop())
 
 	def processFromInput(self):
 		print("Press ENTER to step or type 'add' to add a process.")
@@ -23,7 +36,10 @@ class Dispatcher(object):
 			name = raw_input()
 			print("Length?")
 			length = int(raw_input())
-			self.runQueue.insert(0, Process(10.0, 1, length, name))
+			print("Niceness?")
+			niceness = int(raw_input())
+			self.runQueue.insert(0, Process(self.pid, 10.0, 1, niceness, length, name))
+			self.pid += 1
 
 	def printQueues(self):
 		print("    RUN: ", end="")
@@ -36,11 +52,12 @@ class Dispatcher(object):
 		print()
 		print("RUNNING: ", end="")
 		for process_running in self.processes_running:
-			print(process_running.name, "(", process_running.steps_remaining, ")(", process_running.priority, ") ", sep="", end=", ")
+			print(process_running.name, "(", process_running.steps_remaining, ")(", process_running.allowed_time, ") ", sep="", end=", ")
 		print()
 
-	def runCode(self):
-		pass
+
+	def isProcessorFree(self):
+		return len(self.processes_running) < self.processors
 
 	def step(self):
 		"""Steps one unit of time."""
@@ -48,53 +65,39 @@ class Dispatcher(object):
 		#Add Processes
 		#self.processFromInput()
 
-		# Update resources used
-
 		# Advance Queue?
-		for i in range(0, self.processors):
-			if self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors):
-				if i < len(self.processes_running):
-					self.processes_running[i].execution_time = 0
-					self.runQueue.append(self.processes_running[i])
-					self.processes_running.pop(self.processes_running.index(self.processes_running[i]))
-
-		self.policy.reorderQueue(self.runQueue, self.processes_running)
-
-		for i in range(0, self.processors):
-			if (self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors)):
-				if (len(self.runQueue) != 0):
-					self.processes_running.insert(i, self.runQueue.pop())
+		self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors)
 
 		# Update queues
 		self.policy.reorderQueue(self.runQueue, self.processes_running)
 
 		#self.printQueues()
 
-		# Determine if the process has to wait
-		for process_running in self.processes_running:
-			if (random.random() < process_running.disk_probability): #maybe we "randomly" need disk
-				process_running.disk_time_remaining = random.randint(1, 10)
-				self.diskQueue.insert(0, process_running)
-				if len(self.runQueue) > 0 and len(self.processes_running) < self.processors:
-					self.processes_running.insert(0, self.runQueue.pop())
-				else:
-					self.processes_running.remove(process_running)
+		toRemove = []
+		# Determine if a process has to wait
+		for process in self.processes_running:                         #check each process
+			if process.needsDisk():                                      #if we "randomly" need disk
+				process.diskWait(self.diskQueue)                       #put it in the wait queue
+				toRemove.append((process, self.processes_running.index(process)))   #mark it for removal
 
+		for process in toRemove:
+			if len(self.runQueue) > 0:
+				self.processes_running[process[1]] = self.runQueue.pop() 
+			else:
+				self.processes_running.remove(process[0])
 			
 		# Run one step of code
 		for process_running in self.processes_running:
-			process_running.execution_time += 1
-			process_running.steps_remaining -= 1
-			if process_running.steps_remaining == 0:
-				# Process finished
-				self.processes_running.remove(process_running)
+			process_running.execute()
+			if process_running.isDone():                          #If process is done
+				self.finishedProcesses.append(process_running)    #add to finished processes
+				self.processes_running.remove(process_running)    #remove from processor
 				if (len(self.runQueue) != 0 and len(self.processes_running) < self.processors):
 					self.processes_running.insert(0, self.runQueue.pop())
-				
 
-		self.runCode()
-
-		self.policy.get_information(self)
+		self.policy.updateInformation(self)
+		self.policy.updateRuntimes(self)
+		self.rounds += 1   #Each round represents 10 microseconds
 
 		#Deal with Disk Queue
 		if len(self.diskQueue) > 0:
@@ -102,4 +105,6 @@ class Dispatcher(object):
 				self.runQueue.append(self.diskQueue.pop())
 		if len(self.diskQueue) > 0:
 			self.diskQueue[-1].disk_time_remaining -= 1
+
+main = Dispatcher(ProportionalDecayUsage())#WeightedRoundRobin())#FirstInFirstOut())
 

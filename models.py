@@ -1,10 +1,11 @@
-import operator
+import random
+from policies import *
 
 # Models
-
 class Process(object):
     """Represents a process."""
-    def __init__(self, priority, goal, steps_remaining, name):
+    def __init__(self, pid, priority, goal, niceness, steps_remaining, name):
+        self.pid = pid
         self.base_priority = priority
         self.priority = priority
         self.goal = goal
@@ -13,17 +14,43 @@ class Process(object):
         self.execution_time = 0
         self.resourceInUse = None
         self.wait_time = 0
+        self.allowed_time = 0
 
         #Behavior
-        self.disk_probability = .10
+        self.disk_probability = .05
 
         #metrics used by some policies
         self.usage = 0.0
+
+        weights = [1024, 512, 256, 128, 64, 32, 16]
+        if niceness > 6:
+            self.niceness = 6
+        self.weight = float(weights[niceness])
+
+        #analytics information
+        self.totalTimeInRunQueue = 0
+        self.timesRun = 0    #this and the above determine avg time in run queue
+        self.timeSinceStart = 0
+
+    def execute(self):
+        self.execution_time += 1
+        self.steps_remaining -= 1
+
+    def isDone(self):
+        return self.steps_remaining == 0
+
+    def needsDisk(self):
+        return random.random() < self.disk_probability
+
+    def diskWait(self, diskQueue):
+        self.disk_time_remaining = random.randint(1, 5)
+        diskQueue.insert(0, self)
 
     def resourceRequired(self, t):
         """Determines what resource would be needed for time t based on the 
         resource probabilities."""
         pass
+
 
 # Resources
 class Resource(object):
@@ -51,119 +78,3 @@ class Network(Resource):
     """Represents the network resource."""
     def __init__(self, name):
         super(Network, self).__init__(name)
-
-
-# Scheduling polices
-class Policy(object):
-    """Abstract class representing a scheduling policy."""
-    def __init__(self):
-        super(Policy, self).__init__()
-
-    def reorderQueue(self, running, processes_running):
-        """Reorders a queue of processes depending on the policy. Default
-        implementation doesn't order the queue."""
-        pass
-
-    def shouldAdvance(self, queue, processes_running, processors):
-        """Checks if a processor should kick out a process and
-        advance the queue. Default implementation only advances when the process
-        running finishes."""
-        if len(processes_running) < processors:
-            return True
-        return False
-
-    def get_information(self, dispatcher):
-        pass
-
-class FirstInFirstOut(Policy):
-    """First In First Out scheduling policy."""
-
-    def __init__(self):
-        super(FirstInFirstOut, self).__init__()
-
-    def reorderQueue(self, queue, processes_running):
-        """Reorders a queue of processes based on the FIFO policy."""
-        pass
-
-    def get_information(self, dispatcher):
-        pass
-
-class RoundRobin(Policy):
-    """Round robin scheduling policy."""
-
-    def __init__(self, quantum = 1):
-        super(RoundRobin, self).__init__()
-        self.quantum = quantum
-
-    def shouldAdvance(self, queue, processes_running, processors):
-        if len(processes_running) < processors:
-            return True
-        for i in range(0,processors):
-            if (processes_running[i].execution_time >= self.quantum):
-                return True
-        return False
-
-    def get_information(self, dispatcher):
-        pass
-
-class ShortestRemainingTime(Policy):
-    """Shortest Remaining Time scheduling policy."""
-
-    def __init__(self):
-        super(ShortestRemainingTime, self).__init__()
-
-    def reorderQueue(self, runQueue, processes_running):
-        """Reorders a queue of processes based on which processes have the least
-        time remaining."""
-        # We have to add the current process back in the queue
-        #if (process_running != None):
-         #   runQueue.append(process_running)  This is done in dispatcher.step()
-
-        runQueue.sort(key = operator.attrgetter('steps_remaining'), reverse = True)
-
-        #if (len(runQueue) != 0):
-         #   process_running = runQueue.pop()     This is done in dispatcher.step()
-
-    def shouldAdvance(self, queue, processes_running):
-        return True
-
-    def get_information(dispatcher):
-        pass
-
-class DecayUsage(Policy):
-    """Decay Usage scheduling policy."""
-
-    def __init__(self, quantum = 3):
-        super(DecayUsage, self).__init__()
-        self.quantum = quantum
-
-    def setPriority(self, runQueue, process_running):
-        for process in runQueue:
-            process.priority = process.base_priority - process.usage
-        if process_running:
-            process_running.priority = process_running.base_priority - process_running.usage
-
-    def shouldAdvance(self, queue, process_running):
-        if process_running == None:
-            return True
-        if len(queue) > 0:
-            if process_running.execution_time > self.quantum:
-                return True
-            else:
-                return False
-
-    def reorderQueue(self, runQueue, process_running):
-        runQueue.sort(key = operator.attrgetter('priority'))
-
-    def calculate_usage(self, process_running, waitQueues):
-        if process_running != None:
-            if process_running.usage < process_running.base_priority:
-                process_running.usage += 1
-            for queue in waitQueues:
-                for process in queue:
-                    process.usage *= 5/8
-
-
-    def get_information(self, dispatcher):
-        self.calculate_usage(dispatcher.process_running, dispatcher.waitQueues)
-        self.setPriority(dispatcher.runQueue, dispatcher.process_running)
