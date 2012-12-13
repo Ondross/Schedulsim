@@ -10,11 +10,24 @@ class Dispatcher(object):
 		super(Dispatcher, self).__init__()
 		self.policy = policy
 		self.runQueue = []
-		self.timerQueue = []
+		self.idleQueue = []
 		self.diskQueue = []
 		self.processes_running = []
 		self.processors = 2
-		self.waitQueues = [self.timerQueue, self.diskQueue]
+		self.waitQueues = [self.idleQueue, self.diskQueue]
+		self.finishedProcesses = []
+		self.rounds = 0
+		self.pid = 0
+
+		self.running = True
+
+	def activateMultitasking(self):
+		self.processors = 2
+
+	def deactivateMultitasking(self):
+		self.processors = 1
+		if len(self.processes_running) > 1:
+			self.runQueue.insert(0, self.processes_running.pop())
 
 	def processFromInput(self):
 		print("Press ENTER to step or type 'add' to add a process.")
@@ -25,7 +38,8 @@ class Dispatcher(object):
 			length = int(raw_input())
 			print("Niceness?")
 			niceness = int(raw_input())
-			self.runQueue.insert(0, Process(10.0, 1, niceness, length, name))
+			self.runQueue.insert(0, Process(self.pid, 10.0, 1, niceness, length, name))
+			self.pid += 1
 
 	def printQueues(self):
 		print("    RUN: ", end="")
@@ -75,12 +89,15 @@ class Dispatcher(object):
 		# Run one step of code
 		for process_running in self.processes_running:
 			process_running.execute()
-			if process_running.isDone():
-				self.processes_running.remove(process_running)
+			if process_running.isDone():                          #If process is done
+				self.finishedProcesses.append(process_running)    #add to finished processes
+				self.processes_running.remove(process_running)    #remove from processor
 				if (len(self.runQueue) != 0 and len(self.processes_running) < self.processors):
 					self.processes_running.insert(0, self.runQueue.pop())
 
 		self.policy.updateInformation(self)
+		self.policy.updateRuntimes(self)
+		self.rounds += 1   #Each round represents 10 microseconds
 
 		#Deal with Disk Queue
 		if len(self.diskQueue) > 0:
@@ -89,7 +106,8 @@ class Dispatcher(object):
 		if len(self.diskQueue) > 0:
 			self.diskQueue[-1].disk_time_remaining -= 1
 
-main = Dispatcher(WeightedRoundRobin())#FirstInFirstOut())
 
-while (True):
+main = Dispatcher(ProportionalDecayUsage())#WeightedRoundRobin())#FirstInFirstOut())
+
+while (main.running == True):
 	main.step()

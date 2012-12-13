@@ -1,0 +1,31 @@
+mean/nice running ratio: x
+
+average responsiveness: x secs waiting in run queue
+throughput: running x secs out of y secs
+context switches: x
+
+avg responsiveness of responsive programs:
+"                     throughput programs:
+execution steps - time to run of responsive program:
+"                              throughput program:
+
+mean responsiveness programs will be the big winners because they will jump to the head of the queue and then stay there until they need disk.
+mean throughput programs might not get to be so mean, because they will end up reordered to the butt very often
+Nice responsiveness programs will win. They might do almost as well mean responsiveness. They don't need long time slices, because they'll probably need the disk before they hit the end of their time slice anyway. 
+Nice throughput programs will lose, as they should. They just want to get some throughput whenever no one else is around.
+
+
+What do I want to see for these four possibilities? Niceness really only affects throughput, since it affects time slice. So if you're responsive, you may not be as affected by niceness. That's fine.
+
+Mean Responsiveness: Should have the shortest wait time in run queue
+Mean Throughput:     Should have the longest time running
+Nice Responsiveness: Should have the shortest time running
+Nice Throughput:     Should have the longest wait time in run queue
+
+Don't care about the second metrics for these guys, as long as they're not getting them at a large expense to the others.
+
+
+so for every process, I want to know:
+	avg time per wait in the run queue
+	execution_steps - time it took to finish
+

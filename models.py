@@ -4,7 +4,8 @@ from policies import *
 # Models
 class Process(object):
     """Represents a process."""
-    def __init__(self, priority, goal, niceness, steps_remaining, name):
+    def __init__(self, pid, priority, goal, niceness, steps_remaining, name):
+        self.pid = pid
         self.base_priority = priority
         self.priority = priority
         self.goal = goal
@@ -26,6 +27,11 @@ class Process(object):
             self.niceness = 6
         self.weight = float(weights[niceness])
 
+        #analytics information
+        self.totalTimeInRunQueue = 0
+        self.timesRun = 0    #this and the above determine avg time in run queue
+        self.timeSinceStart = 0
+
     def execute(self):
         self.execution_time += 1
         self.steps_remaining -= 1
@@ -45,6 +51,7 @@ class Process(object):
         """Determines what resource would be needed for time t based on the 
         resource probabilities."""
         pass
+
 
 # Resources
 class Resource(object):
