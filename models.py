@@ -20,7 +20,6 @@ class Process(object):
         #metrics used by some policies
         self.usage = 0.0
 
-
     def resourceRequired(self, t):
         """Determines what resource would be needed for time t based on the 
         resource probabilities."""

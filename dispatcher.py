@@ -46,7 +46,7 @@ class Dispatcher(object):
 		"""Steps one unit of time."""
 
 		#Add Processes
-		self.processFromInput()
+		#self.processFromInput()
 
 		# Update resources used
 
@@ -68,7 +68,7 @@ class Dispatcher(object):
 		# Update queues
 		self.policy.reorderQueue(self.runQueue, self.processes_running)
 
-		self.printQueues()
+		#self.printQueues()
 
 		# Determine if the process has to wait
 		for process_running in self.processes_running:
@@ -103,7 +103,3 @@ class Dispatcher(object):
 		if len(self.diskQueue) > 0:
 			self.diskQueue[-1].disk_time_remaining -= 1
 
-main = Dispatcher(FirstInFirstOut())
-
-while (True):
-	main.step()

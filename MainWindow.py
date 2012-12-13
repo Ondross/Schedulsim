@@ -7,7 +7,7 @@ class MainWindow(Frame):
 
         apply(Frame.__init__,(self,Master),kw)
         self.__Frame16 = Frame(self)
-        self.__Frame16.pack(side='top')
+        self.__Frame16.pack(expand='yes',fill='both',side='top')
         self.__Label1 = Label(self.__Frame16,text='Scheduling Policy')
         self.__Label1.pack(side='left')
         self.__Frame2 = Frame(self,relief='raised')
