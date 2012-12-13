@@ -4,7 +4,7 @@ from policies import *
 # Models
 class Process(object):
     """Represents a process."""
-    def __init__(self, priority, goal, steps_remaining, name):
+    def __init__(self, priority, goal, niceness, steps_remaining, name):
         self.base_priority = priority
         self.priority = priority
         self.goal = goal
@@ -13,12 +13,18 @@ class Process(object):
         self.execution_time = 0
         self.resourceInUse = None
         self.wait_time = 0
+        self.allowed_time = 0
 
         #Behavior
-        self.disk_probability = .10
+        self.disk_probability = .05
 
         #metrics used by some policies
         self.usage = 0.0
+
+        weights = [1024, 512, 256, 128, 64, 32, 16]
+        if niceness > 6:
+            self.niceness = 6
+        self.weight = float(weights[niceness])
 
     def execute(self):
         self.execution_time += 1

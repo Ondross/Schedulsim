@@ -23,7 +23,9 @@ class Dispatcher(object):
 			name = raw_input()
 			print("Length?")
 			length = int(raw_input())
-			self.runQueue.insert(0, Process(10.0, 1, length, name))
+			print("Niceness?")
+			niceness = int(raw_input())
+			self.runQueue.insert(0, Process(10.0, 1, niceness, length, name))
 
 	def printQueues(self):
 		print("    RUN: ", end="")
@@ -36,7 +38,7 @@ class Dispatcher(object):
 		print()
 		print("RUNNING: ", end="")
 		for process_running in self.processes_running:
-			print(process_running.name, "(", process_running.steps_remaining, ")(", process_running.priority, ") ", sep="", end=", ")
+			print(process_running.name, "(", process_running.steps_remaining, ")(", process_running.allowed_time, ") ", sep="", end=", ")
 		print()
 
 
@@ -50,14 +52,7 @@ class Dispatcher(object):
 		self.processFromInput()
 
 		# Advance Queue?
-		for i in range(self.processors):
-			if self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors):
-				if len(self.processes_running) > i:
-					self.processes_running[i].execution_time = 0
-					self.runQueue.append(self.processes_running.pop(i))
-				self.policy.reorderQueue(self.runQueue, self.processes_running)
-				if (len(self.runQueue) != 0):
-					self.processes_running.insert(i, self.runQueue.pop())
+		self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors)
 
 		# Update queues
 		self.policy.reorderQueue(self.runQueue, self.processes_running)
@@ -94,7 +89,7 @@ class Dispatcher(object):
 		if len(self.diskQueue) > 0:
 			self.diskQueue[-1].disk_time_remaining -= 1
 
-main = Dispatcher(DecayUsage())#FirstInFirstOut())
+main = Dispatcher(WeightedRoundRobin())#FirstInFirstOut())
 
 while (True):
 	main.step()
