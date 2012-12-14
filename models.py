@@ -8,7 +8,6 @@ class Process(object):
         self.pid = pid
         self.base_priority = priority
         self.priority = priority
-        self.goal = goal
         self.steps_remaining = steps_remaining
         self.name = name
         self.execution_time = 0
@@ -18,23 +17,31 @@ class Process(object):
 
         #Behavior
         self.disk_probability = .05
+        self.idle_probability = .05
+
+        if self.disk_probability + self.idle_probability > .1:
+            self.goal = "impatient"
+        else:
+            self.goal = "greedy"
 
         #metrics used by some policies
         self.usage = 0.0
 
-        weights = [1024, 512, 256, 128, 64, 32, 16]
+        weights = [10, 6, 3, 2, 1.5, 1.2, 1]  #mess with these numbers
+        self.niceness = niceness
         if niceness > 6:
             self.niceness = 6
-        self.weight = float(weights[niceness])
+        self.weight = float(weights[self.niceness])
 
         #analytics information
-        self.totalTimeInRunQueue = 0
-        self.timesRun = 0    #this and the above determine avg time in run queue
-        self.timeSinceStart = 0
+        self.totalTimeInRunQueue = 0.0
+        self.timesRun = 0.0    #this and the above determine avg time waiting in run queue
+        self.timeSinceStart = 0.0
+        self.timeRun = 0.0
 
     def execute(self):
-        self.execution_time += 1
-        self.steps_remaining -= 1
+        self.execution_time += 10
+        self.steps_remaining -= 10
 
     def isDone(self):
         return self.steps_remaining == 0

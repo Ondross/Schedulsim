@@ -1,4 +1,5 @@
 import operator
+import matplotlib.pyplot as plt
 
 # Scheduling polices
 class Policy(object):
@@ -15,24 +16,26 @@ class Policy(object):
         """Checks if a processor should kick out a process and
         advance the queue. Default implementation only advances when the process
         running finishes."""
-        for i in range(len(processes_running)):    #if there is something to advance
-            queue.insert(0, processes_running[i])
-            queue[0].execution_time = 0
-            processes_running[i] = queue.pop()
-            processes_running[i].timesRun += 1
+        if len(queue) > 0:    #if there is something to advance
+            if len(processes_running) < processors:   #empty processor?
+                processes_running.append(queue.pop())  #fill it up
+                processes_running[-1].timesRun += 1
+                self.shouldAdvance(queue,processes_running, processors)  #check again
+
 
     def updateInformation(self, dispatcher):
         pass
 
     def updateRuntimes(self, dispatcher):
         for process in dispatcher.runQueue:
-            process.totalTimeInRunQueue += 1
-            process.timeSinceStart += 1
+            process.totalTimeInRunQueue += 10
+            process.timeSinceStart += 10
         for queue in dispatcher.waitQueues:
             for process in queue:
-                process.timeSinceStart += 1
+                process.timeSinceStart += 10
         for process in dispatcher.processes_running:
-            process.timeSinceStart += 1
+            process.timeSinceStart += 10
+            process.timeRun += 10
 
 class FirstInFirstOut(Policy):
     """First In First Out scheduling policy."""
@@ -50,7 +53,7 @@ class FirstInFirstOut(Policy):
 class RoundRobin(Policy):
     """Round robin scheduling policy."""
 
-    def __init__(self, quantum = 1):
+    def __init__(self, quantum = 50):
         super(RoundRobin, self).__init__()
         self.quantum = quantum
 
@@ -58,6 +61,7 @@ class RoundRobin(Policy):
         if len(queue) > 0:    #if there is something to advance
             if len(processes_running) < processors:   #empty processor?
                 processes_running.append(queue.pop())  #fill it up
+                processes_running[-1].timesRun += 1
                 self.shouldAdvance(queue,processes_running, processors)  #check again
             else:
                 for i in range(len(processes_running)):
@@ -91,6 +95,11 @@ class ShortestRemainingTime(Policy):
 
     def shouldAdvance(self, queue, processes_running, processors):
         if len(queue) > 0:    #if there is something to advance
+            if len(processes_running) < processors:   #empty processor?
+                processes_running.append(queue.pop())  #fill it up
+                processes_running[-1].timesRun += 1
+                self.shouldAdvance(queue,processes_running, processors)  #check again
+        if len(queue) > 0:    #if there is something to advance
             for i in range(len(processes_running)):
                 if queue[-1].steps_remaining < processes_running[i].steps_remaining:
                     queue.insert(0, processes_running[i])
@@ -98,7 +107,7 @@ class ShortestRemainingTime(Policy):
                     processes_running[i] = queue.pop()
                     processes_running[i].timesRun += 1
 
-    def updateInformation(dispatcher):
+    def updateInformation(self, dispatcher):
         pass
 
 class DecayUsage(Policy):
@@ -123,6 +132,7 @@ class DecayUsage(Policy):
         if len(queue) > 0:    #if there is something to advance
             if len(processes_running) < processors:   #empty processor?
                 processes_running.append(queue.pop())  #fill it up
+                processes_running[-1].timesRun += 1
                 self.shouldAdvance(queue,processes_running, processors)  #check again
             else:
                 for i in range(len(processes_running)):
@@ -152,7 +162,7 @@ class DecayUsage(Policy):
 class WeightedRoundRobin(Policy):
     """Weighted Round Robin scheduling policy."""
 
-    def __init__(self, minimumQuantum = 1.0, roundLength = 12.0):
+    def __init__(self, minimumQuantum = 30.0, roundLength = 120.0):
         super(WeightedRoundRobin, self).__init__()
         self.minimumQuantum = minimumQuantum
         self.roundLength = roundLength
@@ -172,6 +182,7 @@ class WeightedRoundRobin(Policy):
         if len(queue) > 0:    #if there is something to advance
             if len(processes_running) < processors:   #empty processor?
                 processes_running.append(queue.pop())  #fill it up
+                processes_running[-1].timesRun += 1
                 self.shouldAdvance(queue,processes_running, processors)  #check again
             else:
                 for i in range(len(processes_running)):
@@ -189,7 +200,7 @@ class WeightedRoundRobin(Policy):
 class ProportionalDecayUsage(Policy):
     """A unique scheduling algorithm that reorders the run queue based on usage, but choose time slices based on niceness"""
 
-    def __init__(self, minimumQuantum = 1.0, roundLength = 12.0):
+    def __init__(self, minimumQuantum = 30.0, roundLength = 120.0):
         super(ProportionalDecayUsage, self).__init__()
         self.minimumQuantum = minimumQuantum
         self.roundLength = roundLength
@@ -231,6 +242,7 @@ class ProportionalDecayUsage(Policy):
         if len(queue) > 0:    #if there is something to advance
             if len(processes_running) < processors:   #empty processor?
                 processes_running.append(queue.pop())  #fill it up
+                processes_running[-1].timesRun += 1
                 self.shouldAdvance(queue,processes_running, processors)  #check again
             else:
                 for i in range(len(processes_running)):

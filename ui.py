@@ -150,7 +150,7 @@ class Controller:
         name = str(self.processToAddString.get())
         length = -1
         # TODO: get some data
-        process = Process(10.0, 1, length, name)
+        process = Process(0, 10.0, 1, 0, length, name)
         self.dispatcher.runQueue.insert(0, process)
 
         self.prepareRunQueueViews()
