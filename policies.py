@@ -104,11 +104,11 @@ class ShortestRemainingTime(Policy):
 class DecayUsage(Policy):
     """Decay Usage scheduling policy."""
 
-    def __init__(self, quantum = 3):
+    def __init__(self, quantum = 3, usageIncrease = 1, usageDecrease = 5/8):
         super(DecayUsage, self).__init__()
         self.quantum = quantum
-        self.usageIncrease = 1
-        self.usageDecrease = 5/8
+        self.usageIncrease = usageIncrease
+        self.usageDecrease = usageDecrease
 
     def setPriority(self, runQueue, waitQueues, processes_running):
         for process in runQueue:
@@ -141,7 +141,7 @@ class DecayUsage(Policy):
                 process.usage += self.usageIncrease
         for queue in waitQueues:
             for process in queue:
-                process.usage = process.usage * usageDecrease
+                process.usage = process.usage * self.usageDecrease
 
 
     def updateInformation(self, dispatcher):
