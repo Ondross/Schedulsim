@@ -308,7 +308,7 @@ class RunningProcess(tk.Canvas):
 
     def setProcess(self, p):
         self.p = p
-        self.create_text(56, 20, text=p.name)
+        self.create_text(56, 20, text=p.name + ' (' + str(p.pid) + ')', anchor='nw')
         
 class QueueWidget(tk.Frame):
    def __init__( self, parent, **options ):
