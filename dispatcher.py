@@ -1,8 +1,8 @@
 from __future__ import print_function
 import random
-import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
-import pylab
+#import matplotlib.pyplot as plt
+#import matplotlib.mlab as mlab
+#import pylab
 
 
 from models import *

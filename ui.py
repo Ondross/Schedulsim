@@ -44,6 +44,9 @@ class Controller:
         stepButton = Button(self.view, text="STEP", command=self.step)
         stepButton.place(x=13, y=200)
 
+        stepButton = Button(self.view, text="Show Results", command=self.dispatcher.printResults())
+        stepButton.place(x=90, y=200)
+
         # Processors
         self.view.create_text(270, 120, text='RUNNING', font='Arial')
 
