@@ -1,8 +1,8 @@
 from __future__ import print_function
 import random
-#import matplotlib.pyplot as plt
-#import matplotlib.mlab as mlab
-#import pylab
+import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
+import pylab
 
 
 from models import *
@@ -255,6 +255,20 @@ class Dispatcher(object):
 				self.processes_running[process[1]].timesRun += 1 
 			else:
 				self.processes_running.remove(process[0])
+
+		# Determine if a process has to wait
+		for process in self.processes_running:                         #check each process
+			if process.needsinput():                                      #if we "randomly" need disk
+				process.inputWait(self.inputQueue)                       #put it in the wait queue
+				toRemove.append((process, self.processes_running.index(process)))   #mark it for removal
+
+		for process in toRemove:
+			if len(self.runQueue) > 0:
+				self.processes_running[process[1]] = self.runQueue.pop()
+				self.processes_running[process[1]].timesRun += 1 
+			else:
+				self.processes_running.remove(process[0])
+
 			
 		# Run one step of code
 		for process_running in self.processes_running:
@@ -276,5 +290,12 @@ class Dispatcher(object):
 				self.runQueue.append(self.diskQueue.pop())
 		if len(self.diskQueue) > 0:
 			self.diskQueue[-1].disk_time_remaining -= 1
+
+		#Deal with input Queue
+		if len(self.inputQueue) > 0:
+			if self.inputQueue[-1].input_time_remaining == 0:
+				self.runQueue.append(self.inputQueue.pop())
+		if len(self.inputQueue) > 0:
+			self.inputQueue[-1].input_time_remaining -= 1
 
 main = Dispatcher(ProportionalDecayUsage())#WeightedRoundRobin())
