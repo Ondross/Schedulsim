@@ -14,6 +14,8 @@ class Controller:
         self.processorViews = []
         self.policySettingControls = []
 
+        self.processesCreated = 0
+
         root.resizable(width=False, height=False)
         root.title('Schedulsim')
         root.geometry("%dx%d+0+0" % (w, h))
@@ -247,8 +249,9 @@ class Controller:
         
         name = str(self.processToAddString.get())
         length = -1
-        # TODO: get some data
-        process = Process(0, 10.0, 1, 0, length, name)
+        # (self, pid, priority, goal, niceness, steps_remaining, name):
+        self.processesCreated = self.processesCreated + 1
+        process = Process(self.processesCreated, 10.0, 1, 0, length, name)
         self.dispatcher.runQueue.insert(0, process)
 
         self.prepareRunQueueViews()
@@ -292,7 +295,7 @@ class QueuedProcess(tk.Canvas):
 
     def setProcess(self, p):
         self.p = p
-        self.create_text(14, 12, text=p.name, anchor='nw')
+        self.create_text(14, 12, text=p.name + ' (' + str(p.pid) + ')', anchor='nw')
 
 class RunningProcess(tk.Canvas):
     """View for processes inside a processor."""
