@@ -53,6 +53,13 @@ class Process(object):
         self.disk_time_remaining = random.randint(1, 5)
         diskQueue.insert(0, self)
 
+    def needsinput(self):
+        return random.random() < self.idle_probability
+
+    def inputWait(self, idleQueue):
+        self.idle_time_remaining = random.randint(1, 5)
+        idleQueue.insert(0, self) 
+
     def needsInput(self):
         return random.random() < self.idle_probability
 

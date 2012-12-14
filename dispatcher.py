@@ -1,8 +1,8 @@
 from __future__ import print_function
 import random
-import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
-import pylab
+# import matplotlib.pyplot as plt
+# import matplotlib.mlab as mlab
+# import pylab
 
 
 from models import *
@@ -65,168 +65,168 @@ class Dispatcher(object):
 	def isProcessorFree(self):
 		return len(self.processes_running) < self.processors
 
-	def printResults(self):
-		context_switches = 0.0
-		average_wait = 0.0
-		greedies = 0.1
-		wait_greedy = 0.0
-		throughput_greedy = 0.0
-		nices = 0.1
-		nicegreedy = 0.1
-		niceimpatient = 0.1
-		nice_run = 0.1
-		nice_life = 0.1
-		wait_greedy_nice = 0.0
-		throughput_greedy_nice = 0.0
+	# def printResults(self):
+	# 	context_switches = 0.0
+	# 	average_wait = 0.0
+	# 	greedies = 0.1
+	# 	wait_greedy = 0.0
+	# 	throughput_greedy = 0.0
+	# 	nices = 0.1
+	# 	nicegreedy = 0.1
+	# 	niceimpatient = 0.1
+	# 	nice_run = 0.1
+	# 	nice_life = 0.1
+	# 	wait_greedy_nice = 0.0
+	# 	throughput_greedy_nice = 0.0
 
-		means = 0.1
-		meangreedy = 0.1
-		meanimpatient = 0.1
-		mean_run = 0.1
-		mean_life = 0.1
-		wait_greedy_mean = 0.0
-		throughput_greedy_mean = 0.0
+	# 	means = 0.1
+	# 	meangreedy = 0.1
+	# 	meanimpatient = 0.1
+	# 	mean_run = 0.1
+	# 	mean_life = 0.1
+	# 	wait_greedy_mean = 0.0
+	# 	throughput_greedy_mean = 0.0
 
-		impatients = 0.1
-		wait_impatient = 0.0
-		throughput_impatient = 0.0
-		niceimpatient = 0.1
-		wait_impatient_nice = 0.0
-		throughput_impatient_nice = 0.0
-		mean_impatient = 0.1
-		wait_impatient_mean = 0.0
-		throughput_impatient_mean = 0.0
+	# 	impatients = 0.1
+	# 	wait_impatient = 0.0
+	# 	throughput_impatient = 0.0
+	# 	niceimpatient = 0.1
+	# 	wait_impatient_nice = 0.0
+	# 	throughput_impatient_nice = 0.0
+	# 	mean_impatient = 0.1
+	# 	wait_impatient_mean = 0.0
+	# 	throughput_impatient_mean = 0.0
 
-		processes = []
-		processes += self.processes_running + self.finishedProcesses + self.runQueue
-		for queue in self.waitQueues:
-			processes += queue
+	# 	processes = []
+	# 	processes += self.processes_running + self.finishedProcesses + self.runQueue
+	# 	for queue in self.waitQueues:
+	# 		processes += queue
 
-		for p in processes:
-			print(p.name)
+	# 	for p in processes:
+	# 		print(p.name)
 
-		for process in processes:
-			context_switches += process.timesRun
-			throughput = process.timeRun / process.timeSinceStart
-			print (666, process.timeRun, process.timeSinceStart)
-			try:
-				wait_time = process.totalTimeInRunQueue / process.timesRun
-			except:
-				wait_time = 0
-			average_wait += wait_time
+	# 	for process in processes:
+	# 		context_switches += process.timesRun
+	# 		throughput = process.timeRun / process.timeSinceStart
+	# 		print (666, process.timeRun, process.timeSinceStart)
+	# 		try:
+	# 			wait_time = process.totalTimeInRunQueue / process.timesRun
+	# 		except:
+	# 			wait_time = 0
+	# 		average_wait += wait_time
 
-			if process.goal == "greedy":
-				greedies += 1
-				wait_greedy += wait_time
-				throughput_greedy += throughput
-				if process.niceness > 3:
-					nices += 1
-					nicegreedy += 1
-					nice_run += process.timeRun
-					nice_life += process.timeSinceStart
-					wait_greedy_nice += wait_time
-					throughput_greedy_nice += throughput
-				else:
-					means += 1
-					meangreedy += 1
-					mean_run += process.timeRun
-					mean_life += process.timeSinceStart
-					wait_greedy_mean += wait_time
-					throughput_greedy_mean += throughput
+	# 		if process.goal == "greedy":
+	# 			greedies += 1
+	# 			wait_greedy += wait_time
+	# 			throughput_greedy += throughput
+	# 			if process.niceness > 3:
+	# 				nices += 1
+	# 				nicegreedy += 1
+	# 				nice_run += process.timeRun
+	# 				nice_life += process.timeSinceStart
+	# 				wait_greedy_nice += wait_time
+	# 				throughput_greedy_nice += throughput
+	# 			else:
+	# 				means += 1
+	# 				meangreedy += 1
+	# 				mean_run += process.timeRun
+	# 				mean_life += process.timeSinceStart
+	# 				wait_greedy_mean += wait_time
+	# 				throughput_greedy_mean += throughput
 
-			else:
-				impatients += 1
-				wait_impatient += wait_time
-				throughput_impatient += throughput
-				if process.niceness > 3:
-					nices += 1
-					niceimpatient += 1
-					nice_run += process.timeRun
-					nice_life += process.timeSinceStart
-					wait_impatient_nice += wait_time
-					throughput_impatient_nice += throughput
-				else:
-					means += 1
-					meanimpatient += 1
-					mean_run += process.timeRun
-					mean_life += process.timeSinceStart
-					wait_impatient_mean += wait_time
-					throughput_impatient_mean += throughput
+	# 		else:
+	# 			impatients += 1
+	# 			wait_impatient += wait_time
+	# 			throughput_impatient += throughput
+	# 			if process.niceness > 3:
+	# 				nices += 1
+	# 				niceimpatient += 1
+	# 				nice_run += process.timeRun
+	# 				nice_life += process.timeSinceStart
+	# 				wait_impatient_nice += wait_time
+	# 				throughput_impatient_nice += throughput
+	# 			else:
+	# 				means += 1
+	# 				meanimpatient += 1
+	# 				mean_run += process.timeRun
+	# 				mean_life += process.timeSinceStart
+	# 				wait_impatient_mean += wait_time
+	# 				throughput_impatient_mean += throughput
 
 		
-		average_wait = average_wait / (means + nices)
+	# 	average_wait = average_wait / (means + nices)
 
-		print("check")
-		print (means + nices)
-		print (impatients + greedies)
-		print (len(processes))
+	# 	print("check")
+	# 	print (means + nices)
+	# 	print (impatients + greedies)
+	# 	print (len(processes))
 
-		wait_impatient = wait_impatient / impatients
-		wait_greedy = wait_greedy / greedies
-		throughput_impatient = throughput_impatient / impatients
-		thoughput_greedy = throughput_greedy / greedies
+	# 	wait_impatient = wait_impatient / impatients
+	# 	wait_greedy = wait_greedy / greedies
+	# 	throughput_impatient = throughput_impatient / impatients
+	# 	thoughput_greedy = throughput_greedy / greedies
 
-		wait_impatient_nice = wait_impatient_nice / niceimpatient
-		wait_greedy_nice = wait_greedy_nice / nicegreedy
-		throughput_impatient_nice = throughput_impatient_nice / niceimpatient
-		throughput_greedy_nice = throughput_greedy_nice / nicegreedy
+	# 	wait_impatient_nice = wait_impatient_nice / niceimpatient
+	# 	wait_greedy_nice = wait_greedy_nice / nicegreedy
+	# 	throughput_impatient_nice = throughput_impatient_nice / niceimpatient
+	# 	throughput_greedy_nice = throughput_greedy_nice / nicegreedy
 
-		wait_impatient_mean = wait_impatient_mean / meanimpatient
-		wait_greedy_mean = wait_greedy_mean / meangreedy
-		throughput_impatient_mean = throughput_impatient_mean / meanimpatient
-		throughput_greedy_mean = throughput_greedy_mean / meangreedy
+	# 	wait_impatient_mean = wait_impatient_mean / meanimpatient
+	# 	wait_greedy_mean = wait_greedy_mean / meangreedy
+	# 	throughput_impatient_mean = throughput_impatient_mean / meanimpatient
+	# 	throughput_greedy_mean = throughput_greedy_mean / meangreedy
 
-		print("Time Running: ", self.rounds * 10, " microseconds")
+	# 	print("Time Running: ", self.rounds * 10, " microseconds")
 
-		print("Nice Processes: ", nices)
-		print("Mean Processes: ", means)
-		print("Impatient Processes: ", impatients)
-		print("Greedy Processes: ", greedies)
-		print("Mean/Nice running: ", mean_run/nice_run)
-		print("Mean/Nice lifetime: ", mean_life/nice_life)
-		print("Average Wait Time: ", average_wait, " us")
-		print("Context Switches: ", context_switches)
-		print("\n")
-		print("Avg Wait Time, Impatient: ", wait_impatient, " us")
-		print("Avg Wait Time, Greedy: ", wait_greedy, " us")
-		print("Percent Time Running, Impatient: ", throughput_impatient * 100)
-		print("Percent Time Running, Greedy: ", throughput_greedy * 100)
-		print("\n")
-		print("Avg Wait Time, Nice-Impatient: ", wait_impatient_nice, " us")
-		print("Avg Wait Time, Nice-Greedy: ", wait_greedy_nice, " us")
-		print("Percent Time Running, Nice-Impatient: ", throughput_impatient_nice * 100)
-		print("Percent Time Running, Nice-Greedy: ", throughput_greedy_nice * 100)
-		print("Avg Wait Time, Mean-Impatient: ", wait_impatient_mean, " us")
-		print("Avg Wait Time, Mean-Greedy: ", wait_greedy_mean, " us")
-		print("Percent Time Running, Mean-Impatient: ", throughput_impatient_mean * 100)
-		print("Percent Time Running, Mean-Greedy: ", throughput_greedy_mean * 100)
+	# 	print("Nice Processes: ", nices)
+	# 	print("Mean Processes: ", means)
+	# 	print("Impatient Processes: ", impatients)
+	# 	print("Greedy Processes: ", greedies)
+	# 	print("Mean/Nice running: ", mean_run/nice_run)
+	# 	print("Mean/Nice lifetime: ", mean_life/nice_life)
+	# 	print("Average Wait Time: ", average_wait, " us")
+	# 	print("Context Switches: ", context_switches)
+	# 	print("\n")
+	# 	print("Avg Wait Time, Impatient: ", wait_impatient, " us")
+	# 	print("Avg Wait Time, Greedy: ", wait_greedy, " us")
+	# 	print("Percent Time Running, Impatient: ", throughput_impatient * 100)
+	# 	print("Percent Time Running, Greedy: ", throughput_greedy * 100)
+	# 	print("\n")
+	# 	print("Avg Wait Time, Nice-Impatient: ", wait_impatient_nice, " us")
+	# 	print("Avg Wait Time, Nice-Greedy: ", wait_greedy_nice, " us")
+	# 	print("Percent Time Running, Nice-Impatient: ", throughput_impatient_nice * 100)
+	# 	print("Percent Time Running, Nice-Greedy: ", throughput_greedy_nice * 100)
+	# 	print("Avg Wait Time, Mean-Impatient: ", wait_impatient_mean, " us")
+	# 	print("Avg Wait Time, Mean-Greedy: ", wait_greedy_mean, " us")
+	# 	print("Percent Time Running, Mean-Impatient: ", throughput_impatient_mean * 100)
+	# 	print("Percent Time Running, Mean-Greedy: ", throughput_greedy_mean * 100)
 
-		plt.figure(1)
-		chart = plt.bar([0, 1, 2, 3],[wait_impatient_mean, wait_greedy_mean, wait_impatient_nice, wait_greedy_nice])
+	# 	plt.figure(1)
+	# 	chart = plt.bar([0, 1, 2, 3],[wait_impatient_mean, wait_greedy_mean, wait_impatient_nice, wait_greedy_nice])
 
-		plt.xlabel('Category')
-		plt.ylabel('Average Wait Time')
-		plt.title("Average Waiting Time of Processes")
-		plt.axis([0, 4, 0, 100])
-		plt.grid(True)
-		group_labels = ["mean/impatient", "mean/greedy", "nice/impatient", "nice,greedy"]
-		plt.xticks([.5, 1.5, 2.5, 3.5], group_labels)
+	# 	plt.xlabel('Category')
+	# 	plt.ylabel('Average Wait Time')
+	# 	plt.title("Average Waiting Time of Processes")
+	# 	plt.axis([0, 4, 0, 100])
+	# 	plt.grid(True)
+	# 	group_labels = ["mean/impatient", "mean/greedy", "nice/impatient", "nice,greedy"]
+	# 	plt.xticks([.5, 1.5, 2.5, 3.5], group_labels)
 
-		pylab.ion()
-		plt.show()
+	# 	pylab.ion()
+	# 	plt.show()
 
-		plt.figure(2)
-		chart = plt.bar([0, 1, 2, 3],[100 * throughput_impatient_mean, 100 * throughput_greedy_mean, 100* throughput_impatient_nice, 100 * throughput_greedy_nice])
+	# 	plt.figure(2)
+	# 	chart = plt.bar([0, 1, 2, 3],[100 * throughput_impatient_mean, 100 * throughput_greedy_mean, 100* throughput_impatient_nice, 100 * throughput_greedy_nice])
 
-		plt.xlabel('Category')
-		plt.ylabel('Runtime/Lifetime')
-		plt.title("Runtime/Lifetime Ratio")
-		plt.axis([0, 4, 0, 100])
-		plt.grid(True)
-		group_labels = ["mean/impatient", "mean/greedy", "nice/impatient", "nice,greedy"]
-		plt.xticks([.5, 1.5, 2.5, 3.5], group_labels)
+	# 	plt.xlabel('Category')
+	# 	plt.ylabel('Runtime/Lifetime')
+	# 	plt.title("Runtime/Lifetime Ratio")
+	# 	plt.axis([0, 4, 0, 100])
+	# 	plt.grid(True)
+	# 	group_labels = ["mean/impatient", "mean/greedy", "nice/impatient", "nice,greedy"]
+	# 	plt.xticks([.5, 1.5, 2.5, 3.5], group_labels)
 
-		plt.show()
+	# 	plt.show()
 
 	def step(self):
 		"""Steps one unit of time."""
@@ -259,7 +259,7 @@ class Dispatcher(object):
 		# Determine if a process has to wait
 		for process in self.processes_running:                         #check each process
 			if process.needsinput():                                      #if we "randomly" need disk
-				process.inputWait(self.inputQueue)                       #put it in the wait queue
+				process.inputWait(self.idleQueue)                       #put it in the wait queue
 				toRemove.append((process, self.processes_running.index(process)))   #mark it for removal
 
 		for process in toRemove:
@@ -292,10 +292,10 @@ class Dispatcher(object):
 			self.diskQueue[-1].disk_time_remaining -= 1
 
 		#Deal with input Queue
-		if len(self.inputQueue) > 0:
-			if self.inputQueue[-1].input_time_remaining == 0:
-				self.runQueue.append(self.inputQueue.pop())
-		if len(self.inputQueue) > 0:
-			self.inputQueue[-1].input_time_remaining -= 1
+		if len(self.idleQueue) > 0:
+			if self.idleQueue[-1].input_time_remaining == 0:
+				self.runQueue.append(self.idleQueue.pop())
+		if len(self.idleQueue) > 0:
+			self.idleQueue[-1].input_time_remaining -= 1
 
 main = Dispatcher(ProportionalDecayUsage())#WeightedRoundRobin())
