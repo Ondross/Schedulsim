@@ -48,6 +48,7 @@ class Controller:
         # Multithreading?
         self.multithreadingOn = IntVar()
         multithreadCheckButton = Checkbutton(self.view, text="Multithreading", variable=self.multithreadingOn, command=self.multithreadingCheckChanged)
+        multithreadCheckButton.toggle()
         multithreadCheckButton.place(x=470, y=110)
 
         # Processors
@@ -123,11 +124,12 @@ class Controller:
     def policyChanged(self, event):
         for view in self.policySettingControls:
             view.place_forget()
+            view.destroy()
+        self.view.create_rectangle(150, 30, 700, 80, fill="white", outline="white")
         del self.policySettingControls[:]
 
         policy = self.policyString.get()
-        print policy
-        #"Decay Usage", "Weigthed Round Robin", "Proportional Decay Usage"
+
         if policy == "First In First Out":
             self.dispatcher.policy = FirstInFirstOut()
             return
@@ -143,6 +145,102 @@ class Controller:
             textBox.bind('<Return>', self.policyChanged)
             self.dispatcher.policy = RoundRobin(int(quantum.get()))
             return
+
+        if policy == "Decay Usage":
+            # Setup controls
+            label = Label(self.view, text="Quantum")
+            label.place(x = 200, y = 38)
+            self.policySettingControls.append(label)
+
+            textBox = Entry(self.view, textvariable=quantum, width=3)
+            textBox.place(x = 270, y = 36)
+            textBox.bind('<Return>', self.policyChanged)
+            self.policySettingControls.append(textBox)
+
+            label1 = Label(self.view, text="Usage Increase")
+            label1.place(x = 320, y = 38)
+            self.policySettingControls.append(label1)
+
+            textBox1 = Entry(self.view, textvariable=usageIncrease, width=3)
+            textBox1.place(x = 420, y = 36)
+            textBox1.bind('<Return>', self.policyChanged)
+            self.policySettingControls.append(textBox1)
+
+            label2 = Label(self.view, text="Usage Decrease")
+            label2.place(x = 480, y = 38)
+            self.policySettingControls.append(label2)
+
+            textBox2 = Entry(self.view, textvariable=usageDecrease, width=5)
+            textBox2.place(x = 590, y = 36)
+            textBox2.bind('<Return>', self.policyChanged)
+            self.policySettingControls.append(textBox2)
+
+            self.dispatcher.policy = DecayUsage(int(quantum.get()), float(usageIncrease.get()), float(usageDecrease.get()))
+            return
+
+        if policy == "Weigthed Round Robin":
+            # Setup controls
+            label = Label(self.view, text="Minimum Quantum")
+            label.place(x = 230, y = 38)
+            self.policySettingControls.append(label)
+
+            textBox = Entry(self.view, textvariable=quantum, width=3)
+            textBox.place(x = 360, y = 36)
+            textBox.bind('<Return>', self.policyChanged)
+            self.policySettingControls.append(textBox)
+
+            label1 = Label(self.view, text="Round Length")
+            label1.place(x = 420, y = 38)
+            self.policySettingControls.append(label1)
+
+            textBox1 = Entry(self.view, textvariable=roundLength, width=3)
+            textBox1.place(x = 520, y = 36)
+            textBox1.bind('<Return>', self.policyChanged)
+            self.policySettingControls.append(textBox1)
+
+            self.dispatcher.policy = DecayUsage(int(quantum.get()), int(roundLength.get()))
+            return
+
+        if policy == "Proportional Decay Usage":
+            # Setup controls
+            label = Label(self.view, text="Min. Quantum")
+            label.place(x = 235, y = 38)
+            self.policySettingControls.append(label)
+
+            textBox = Entry(self.view, textvariable=quantum, width=3)
+            textBox.place(x = 335, y = 36)
+            textBox.bind('<Return>', self.policyChanged)
+            self.policySettingControls.append(textBox)
+
+            label1 = Label(self.view, text="Round Length")
+            label1.place(x = 380, y = 38)
+            self.policySettingControls.append(label1)
+
+            textBox1 = Entry(self.view, textvariable=roundLength, width=3)
+            textBox1.place(x = 480, y = 36)
+            textBox1.bind('<Return>', self.policyChanged)
+            self.policySettingControls.append(textBox1)
+
+            label1 = Label(self.view, text="+")
+            label1.place(x = 530, y = 38)
+            self.policySettingControls.append(label1)
+
+            textBox1 = Entry(self.view, textvariable=usageIncrease, width=3)
+            textBox1.place(x = 550, y = 36)
+            textBox1.bind('<Return>', self.policyChanged)
+            self.policySettingControls.append(textBox1)
+
+            label2 = Label(self.view, text="-")
+            label2.place(x = 600, y = 38)
+            self.policySettingControls.append(label2)
+
+            textBox2 = Entry(self.view, textvariable=usageDecrease, width=5)
+            textBox2.place(x = 615, y = 36)
+            textBox2.bind('<Return>', self.policyChanged)
+            self.policySettingControls.append(textBox2)
+
+            self.dispatcher.policy = DecayUsage(int(quantum.get()), int(roundLength.get()))
+            return
     
     def addProcess(self):
         print "Process to add is: ", self.processToAddString.get()
@@ -150,7 +248,7 @@ class Controller:
         name = str(self.processToAddString.get())
         length = -1
         # TODO: get some data
-        process = Process(10.0, 0,1,0, length, name)
+        process = Process(0, 10.0, 1, 0, length, name)
         self.dispatcher.runQueue.insert(0, process)
 
         self.prepareRunQueueViews()
@@ -179,11 +277,10 @@ class Controller:
     def multithreadingCheckChanged(self):
         if self.multithreadingOn.get():
             print "Multithreading activated"
-            self.dispatcher.processors = 2
+            self.dispatcher.activateMultitasking()
         else:
             print "Multithreading deactivated"
-            self.dispatcher.processors = 1
-        # TODO: make changes to dipatcher
+            self.dispatcher.deactivateMultitasking()
 
 class QueuedProcess(tk.Canvas):
     """View for processes inside a queue."""
@@ -227,6 +324,13 @@ if __name__ == '__main__':
     bg = PhotoImage(file="windowbg.gif")
     quantum = StringVar()
     quantum.set("10")
+    usageIncrease = StringVar()
+    usageIncrease.set("5")
+    usageDecrease = StringVar()
+    usageDecrease.set("0.625")
+
+    roundLength = StringVar()
+    roundLength.set("12")
     w = bg.width()
     h = bg.height()
     app = Controller(root)
