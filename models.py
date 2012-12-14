@@ -4,7 +4,7 @@ from policies import *
 # Models
 class Process(object):
     """Represents a process."""
-    def __init__(self, pid, priority, goal, niceness, steps_remaining, name):
+    def __init__(self, pid, priority, impatience, niceness, steps_remaining, name):
         self.pid = pid
         self.base_priority = priority
         self.priority = priority
@@ -16,8 +16,8 @@ class Process(object):
         self.allowed_time = 0
 
         #Behavior
-        self.disk_probability = .05
-        self.idle_probability = .05
+        self.disk_probability = impatience/2
+        self.idle_probability = impatience/2
 
         if self.disk_probability + self.idle_probability > .1:
             self.goal = "impatient"

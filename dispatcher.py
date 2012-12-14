@@ -35,17 +35,20 @@ class Dispatcher(object):
 
 	def processFromInput(self):
 		print("Press ENTER to step or type 'add' to add a process.")
-		if (raw_input() == "add"):
-			print("Name?")
-			name = raw_input()
-			print("Length?")
-			length = int(raw_input())
-			print("Niceness?")
-			niceness = int(raw_input())
-			if name == "quit":
-				self.printResults()
-			self.runQueue.insert(0, Process(self.pid, 10.0, 1, niceness, length, name))
-			self.pid += 1
+		if (raw_input() == "quit"):
+			self.printResults()
+#			print("Name?")
+#			name = raw_input()
+#			#print("Length?")
+#			length = -1 #int(raw_input())
+#			print("Niceness?")
+#			niceness = int(raw_input())
+#			print("Impatience?")
+#			impatience = float(raw_input())
+#			if name == "quit":
+#				self.printResults()
+#			self.runQueue.insert(0, Process(self.pid, 10.0, impatience, niceness, length, name))
+#			self.pid += 1
 
 	def printQueues(self):
 		print("    RUN: ", end="")
@@ -225,14 +228,14 @@ class Dispatcher(object):
 		plt.grid(True)
 		group_labels = ["mean/impatient", "mean/greedy", "nice/impatient", "nice,greedy"]
 		plt.xticks([.5, 1.5, 2.5, 3.5], group_labels)
-
+		pylab.ion()
 		plt.show()
 
 	def step(self):
 		"""Steps one unit of time."""
 
 		#Add Processes
-		#self.processFromInput()
+#		self.processFromInput()
 
 		# Advance Queue?
 		self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors)
@@ -277,4 +280,12 @@ class Dispatcher(object):
 		if len(self.diskQueue) > 0:
 			self.diskQueue[-1].disk_time_remaining -= 1
 
-main = Dispatcher(ProportionalDecayUsage())#WeightedRoundRobin())
+main = Dispatcher(DecayUsage())
+main.runQueue.insert(0, Process(1, 10.0, .15, 6, -1, "name"))
+main.runQueue.insert(0, Process(2, 10.0, .15, 0, -1, "name"))
+main.runQueue.insert(0, Process(3, 10.0, .0, 6, -1, "name"))
+main.runQueue.insert(0, Process(4, 10.0, .0, 0, -1, "balls"))
+
+
+#while(True):
+#	main.step()
