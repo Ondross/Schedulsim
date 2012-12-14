@@ -232,7 +232,7 @@ class Dispatcher(object):
 		"""Steps one unit of time."""
 
 		#Add Processes
-		self.processFromInput()
+		#self.processFromInput()
 
 		# Advance Queue?
 		self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors)
@@ -278,6 +278,3 @@ class Dispatcher(object):
 			self.diskQueue[-1].disk_time_remaining -= 1
 
 main = Dispatcher(ProportionalDecayUsage())#WeightedRoundRobin())
-
-while True:
-	main.step()
