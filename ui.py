@@ -44,9 +44,9 @@ class Controller:
         stepButton = Button(self.view, text="STEP", command=self.step)
         stepButton.place(x=13, y=200)
 
-
         stepButton = Button(self.view, text="Show Results", command=self.dispatcher.printResults())
         stepButton.place(x=90, y=200)
+
 
         # Processors
         self.view.create_text(270, 120, text='RUNNING', font='Arial')
@@ -77,6 +77,7 @@ class Controller:
 
         self.prepareRunQueueViews()
         self.prepareDiskQueueViews()
+        self.prepareIdleQueueViews()
 
         self.redrawQueueBg()
 
@@ -114,6 +115,18 @@ class Controller:
             processView = QueuedProcess(root, width=200, height=41)
             processView.setProcess(process)
             self.runQueueViews.append(processView)
+
+    def prepareIdleQueueViews(self):
+        # Delete views from screen
+        for view in self.imputQueueViews:
+            view.place_forget()
+            view.delete()
+        del self.imputQueueViews[:]
+        # Generate views
+        for process in reversed(self.dispatcher.idleQueue):
+            processView = QueuedProcess(root, width=200, height=41)
+            processView.setProcess(process)
+            self.imputQueueViews.append(processView)
 
     def prepareDiskQueueViews(self):
         # Delete views from screen
