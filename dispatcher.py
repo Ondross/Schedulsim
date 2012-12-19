@@ -315,7 +315,19 @@ class Dispatcher(object):
 			for process in self.idleQueue:
 				process.idle_time_remaining -= 1
 
-main = Dispatcher(ProportionalDecayUsage())#WeightedRoundRobin())
+print("Choose a scheduler by number:")
+print("1. First in, First Out")
+print("2. Shortest Time Remaining")
+print("3. Round Robin")
+print("4. Weighted Round Robin")
+print("5. Decay Usage")
+print("6. Proportional Decay Usage")
+
+policies = [FirstInFirstOut(), ShortestRemainingTime(), RoundRobin(), WeightedRoundRobin(), DecayUsage(), ProportionalDecayUsage()]
+
+policy = policies[int(raw_input())]
+
+main = Dispatcher(policy)#WeightedRoundRobin())
 
 #make eight dummy processes for testing (user input is disabled in this version)
 #each falls into one of the four combinations of niceness/usage
