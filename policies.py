@@ -1,5 +1,13 @@
+#Inigo Beitia and Andrew Heine
+#Software Systems Project, Fall 2012
+#Schedulsim: a scheduling algorithm simulator and assessor
+
+#This branch, "Grapher" analyzes the results of the schedulers and graphs them
+#The branch, "tkinter" lets a user add processes and view the policy in a GUI
+
+#policies.py stores each scheduling algorithm and its methods
+
 import operator
-#import matplotlib.pyplot as plt
 
 # Scheduling polices
 class Policy(object):

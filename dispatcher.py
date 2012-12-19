@@ -1,8 +1,18 @@
+#Inigo Beitia and Andrew Heine
+#Software Systems Project, Fall 2012
+#Schedulsim: a scheduling algorithm simulator and assessor
+
+#This branch, "Grapher" analyzes the results of the schedulers and graphs them
+#The branch, "tkinter" lets a user add processes and view the policy in a GUI
+
+#Dispatcher.py is the controller of the application. It dispatches processes between
+#processors and queues, and calls them methods that keep the process information up to date
+
 from __future__ import print_function
 import random
-# import matplotlib.pyplot as plt
-# import matplotlib.mlab as mlab
-# import pylab
+import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
+import pylab
 
 
 from models import *
@@ -34,8 +44,8 @@ class Dispatcher(object):
 			self.runQueue.insert(0, self.processes_running.pop())
 
 	def processFromInput(self):
-		print("Press ENTER to step or type 'add' to add a process.")
-		if (raw_input() == "quit"):
+		print("Press ENTER to step or type 'results' to view statistics.")
+		if (raw_input() == "results"):
 			self.printResults()
 #			print("Name?")
 #			name = raw_input()
@@ -205,39 +215,38 @@ class Dispatcher(object):
 	 	print("Percent Time Running, Mean-Impatient: ", throughput_impatient_mean * 100)
 	 	print("Percent Time Running, Mean-Greedy: ", throughput_greedy_mean * 100)
 
-	# 	plt.figure(1)
-	# 	chart = plt.bar([0, 1, 2, 3],[wait_impatient_mean, wait_greedy_mean, wait_impatient_nice, wait_greedy_nice])
+	 	plt.figure(1)
+	 	chart = plt.bar([0, 1, 2, 3],[wait_impatient_mean, wait_greedy_mean, wait_impatient_nice, wait_greedy_nice])
 
-	# 	plt.xlabel('Category')
-	# 	plt.ylabel('Average Wait Time')
-	# 	plt.title("Average Waiting Time of Processes")
-	# 	plt.axis([0, 4, 0, 100])
-	# 	plt.grid(True)
-	# 	group_labels = ["mean/impatient", "mean/greedy", "nice/impatient", "nice,greedy"]
-	# 	plt.xticks([.5, 1.5, 2.5, 3.5], group_labels)
+	 	plt.xlabel('Category')
+	 	plt.ylabel('Average Wait Time (us)')
+	 	plt.title("Average Waiting Time of Processes")
+	 	plt.axis([0, 4, 0, 100])
+	 	plt.grid(True)
+	 	group_labels = ["mean/impatient", "mean/greedy", "nice/impatient", "nice,greedy"]
+	 	plt.xticks([.5, 1.5, 2.5, 3.5], group_labels)
 
-	# 	pylab.ion()
-	# 	plt.show()
+	 	pylab.ion()
+	 	plt.show()
 
-	# 	plt.figure(2)
-	# 	chart = plt.bar([0, 1, 2, 3],[100 * throughput_impatient_mean, 100 * throughput_greedy_mean, 100* throughput_impatient_nice, 100 * throughput_greedy_nice])
+	 	plt.figure(2)
+	 	chart = plt.bar([0, 1, 2, 3],[100 * throughput_impatient_mean, 100 * throughput_greedy_mean, 100* throughput_impatient_nice, 100 * throughput_greedy_nice])
 
-	# 	plt.xlabel('Category')
-	# 	plt.ylabel('Runtime/Lifetime')
-	# 	plt.title("Runtime/Lifetime Ratio")
-	# 	plt.axis([0, 4, 0, 100])
-	# 	plt.grid(True)
-	# 	group_labels = ["mean/impatient", "mean/greedy", "nice/impatient", "nice,greedy"]
-	# 	plt.xticks([.5, 1.5, 2.5, 3.5], group_labels)
+	 	plt.xlabel('Category')
+	 	plt.ylabel('Runtime/Lifetime')
+	 	plt.title("Runtime/Lifetime Ratio")
+	 	plt.axis([0, 4, 0, 100])
+	 	plt.grid(True)
+	 	group_labels = ["mean/impatient", "mean/greedy", "nice/impatient", "nice,greedy"]
+	 	plt.xticks([.5, 1.5, 2.5, 3.5], group_labels)
 
-	# 	plt.show()
+	 	plt.show()
 
 
 	def step(self):
 		"""Steps one unit of time."""
-
 		#Add Processes
-#		self.processFromInput()
+		self.processFromInput()
 
 		# Advance Queue?
 		self.policy.shouldAdvance(self.runQueue, self.processes_running, self.processors)
@@ -248,7 +257,7 @@ class Dispatcher(object):
 		self.printQueues()
 
 		toRemove = []
-		# Determine if a process has to wait
+		# Determine if a process has to wait for hard disk
 		for process in self.processes_running:                         #check each process
 			if process.needsDisk():                                      #if we "randomly" need disk
 				process.diskWait(self.diskQueue)                       #put it in the wait queue
@@ -261,7 +270,9 @@ class Dispatcher(object):
 			else:
 				self.processes_running.remove(process[0])
 
-		# Determine if a process has to wait
+		toRemove = []
+
+		# Determine if a process has to wait for user input
 		for process in self.processes_running:                         #check each process
 			if process.needsinput():                                      #if we "randomly" need disk
 				process.inputWait(self.idleQueue)                       #put it in the wait queue
@@ -298,9 +309,26 @@ class Dispatcher(object):
 
 		#Deal with input Queue
 		if len(self.idleQueue) > 0:
-			if self.idleQueue[-1].input_time_remaining == 0:
+			if self.idleQueue[-1].idle_time_remaining <= 0:
 				self.runQueue.append(self.idleQueue.pop())
 		if len(self.idleQueue) > 0:
-			self.idleQueue[-1].input_time_remaining -= 1
+			for process in self.idleQueue:
+				process.idle_time_remaining -= 1
 
-#main = Dispatcher(ProportionalDecayUsage())#WeightedRoundRobin())
+main = Dispatcher(ProportionalDecayUsage())#WeightedRoundRobin())
+
+#make eight dummy processes for testing (user input is disabled in this version)
+#each falls into one of the four combinations of niceness/usage
+main.runQueue.insert(0, Process(0, 10.0, .15, 0, -1, "meanimp"))
+main.runQueue.insert(0, Process(1, 10.0, 0, 0, -1, "meangreed"))
+main.runQueue.insert(0, Process(2, 10.0, .15, 6, -1, "niceimp"))
+main.runQueue.insert(0, Process(3, 10.0, 0, 6, -1, "nicegreed"))
+main.runQueue.insert(0, Process(4, 10.0, .15, 0, -1, "meanimp2"))
+main.runQueue.insert(0, Process(5, 10.0, 0, 0, -1, "meangreed2"))
+main.runQueue.insert(0, Process(6, 10.0, .15, 6, -1, "niceimp2"))
+main.runQueue.insert(0, Process(7, 10.0, 0, 6, -1, "nicegreed2"))
+
+main.pid = 8
+
+while (True):
+	main.step()

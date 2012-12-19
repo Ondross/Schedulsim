@@ -1,3 +1,12 @@
+#Inigo Beitia and Andrew Heine
+#Software Systems Project, Fall 2012
+#Schedulsim: a scheduling algorithm simulator and assessor
+
+#This branch, "Grapher" analyzes the results of the schedulers and graphs them
+#The branch, "tkinter" lets a user add processes and view the policy in a GUI
+
+#models.py stores the information about processes
+
 import random
 from policies import *
 
@@ -59,13 +68,6 @@ class Process(object):
     def inputWait(self, idleQueue):
         self.idle_time_remaining = random.randint(1, 5)
         idleQueue.insert(0, self) 
-
-    def needsInput(self):
-        return random.random() < self.idle_probability
-
-    def inputWait(self, inputQueue):
-        self.input_time_remaining = random.randint(1, 5)
-        inputQueue.insert(0, self)
 
     def resourceRequired(self, t):
         """Determines what resource would be needed for time t based on the 
