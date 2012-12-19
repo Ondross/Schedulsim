@@ -316,12 +316,12 @@ class Dispatcher(object):
 				process.idle_time_remaining -= 1
 
 print("Choose a scheduler by number:")
-print("1. First in, First Out")
-print("2. Shortest Time Remaining")
-print("3. Round Robin")
-print("4. Weighted Round Robin")
-print("5. Decay Usage")
-print("6. Proportional Decay Usage")
+print("0. First in, First Out")
+print("1. Shortest Time Remaining")
+print("2. Round Robin")
+print("3. Weighted Round Robin")
+print("4. Decay Usage")
+print("5. Proportional Decay Usage")
 
 policies = [FirstInFirstOut(), ShortestRemainingTime(), RoundRobin(), WeightedRoundRobin(), DecayUsage(), ProportionalDecayUsage()]
 
