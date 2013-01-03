@@ -189,6 +189,13 @@ class Dispatcher(object):
 	 	wait_greedy_mean = wait_greedy_mean / meangreedy
 	 	throughput_impatient_mean = throughput_impatient_mean / meanimpatient
 	 	throughput_greedy_mean = throughput_greedy_mean / meangreedy
+	 	print("wtf")
+	 	print(meangreedy + nicegreedy)
+	 	print(greedies)
+	 	print(throughput_greedy_nice + throughput_greedy_mean)
+	 	print(throughput_greedy)
+	 	print(throughput_impatient_nice + throughput_impatient_mean)
+	 	print(throughput_impatient)
 
 	 	print("Time Running: ", self.rounds * 10, " microseconds")
 
