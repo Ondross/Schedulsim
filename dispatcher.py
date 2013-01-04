@@ -174,11 +174,16 @@ class Dispatcher(object):
 	 	print (means + nices)
 	 	print (impatients + greedies)
 	 	print (len(processes))
+	 	print("wtf")
+	 	print(throughput_greedy_nice + throughput_greedy_mean)
+	 	print(throughput_greedy)
+	 	print(throughput_impatient_nice + throughput_impatient_mean)
+	 	print(throughput_impatient)
 
 	 	wait_impatient = wait_impatient / impatients
 	 	wait_greedy = wait_greedy / greedies
 	 	throughput_impatient = throughput_impatient / impatients
-	 	thoughput_greedy = throughput_greedy / greedies
+	 	throughput_greedy = throughput_greedy / greedies
 
 	 	wait_impatient_nice = wait_impatient_nice / niceimpatient
 	 	wait_greedy_nice = wait_greedy_nice / nicegreedy
